@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Asterisk/PBX — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html" class="active">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+<h1>Serveur de Téléphonie — Asterisk PBX</h1>
+
+<h2>Présentation</h2>
+<p>Asterisk est un logiciel open-source de serveur téléphonique (IPBX) installé sur le serveur Linux. Il permet de gérer les appels internes entre les différents services de la brasserie via le protocole VoIP (Voice over IP) avec PJSIP.</p>
+
+<table>
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Version installée</td><td>Asterisk 20.20.0</td></tr>
+  <tr><td>Protocole</td><td>PJSIP (SIP moderne)</td></tr>
+  <tr><td>Port</td><td>UDP 5060</td></tr>
+  <tr><td>Serveur</td><td>192.168.136.54 (Linux)</td></tr>
+  <tr><td>Softphone client</td><td>MicroSIP</td></tr>
+</table>
+
+<hr/>
+
+<h1>Installation</h1>
+
+<h2>Pourquoi compiler depuis les sources ?</h2>
+<div class="warning">
+  Le paquet <b>asterisk</b> n'est pas disponible dans les dépôts officiels de Debian 13. Il est donc nécessaire de le compiler depuis les sources officielles.
+</div>
+
+<h2>Étape 1 — Installation des dépendances</h2>
+<pre>
+sudo apt install build-essential wget libssl-dev libncurses5-dev \
+libnewt-dev linux-headers-$(uname -r) libsqlite3-dev uuid-dev -y
+</pre>
+
+<h2>Étape 2 — Téléchargement et compilation</h2>
+<pre>
+cd /usr/src
+sudo wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-20-current.tar.gz
+sudo tar -xvzf asterisk-20-current.tar.gz
+cd asterisk-20*/
+sudo contrib/scripts/install_prereq install
+./configure --with-jansson-bundled
+make -j$(nproc)
+sudo make install
+sudo make samples
+sudo make config
+</pre>
+
+<p><b>Note :</b> La commande <b>make -j$(nproc)</b> utilise tous les cœurs du processeur pour accélérer la compilation. Cette étape peut prendre <b>10 à 15 minutes</b>.</p>
+
+<h2>Étape 3 — Démarrage du service</h2>
+<pre>
+sudo systemctl start asterisk
+sudo systemctl status asterisk
+</pre>
+
+<hr/>
+
+<h1>Configuration PJSIP</h1>
+
+<h2>Fichier pjsip.conf</h2>
+<p>Chemin : <b>/etc/asterisk/pjsip.conf</b></p>
+<p>Ce fichier définit le transport UDP et les comptes SIP de chaque utilisateur.</p>
+
+<pre>
+[transport-udp]
+type=transport
+protocol=udp
+bind=0.0.0.0
+
+[employe1]
+type=endpoint
+context=brasserie
+disallow=all
+allow=ulaw
+auth=employe1-auth
+aors=employe1-aor
+
+[employe1-auth]
+type=auth
+auth_type=userpass
+username=employe1
+password=Brasserie@2026
+
+[employe1-aor]
+type=aor
+max_contacts=1
+
+[employe2]
+type=endpoint
+context=brasserie
+disallow=all
+allow=ulaw
+auth=employe2-auth
+aors=employe2-aor
+
+[employe2-auth]
+type=auth
+auth_type=userpass
+username=employe2
+password=Brasserie@2026
+
+[employe2-aor]
+type=aor
+max_contacts=1
+
+[direction1]
+type=endpoint
+context=brasserie
+disallow=all
+allow=ulaw
+auth=direction1-auth
+aors=direction1-aor
+
+[direction1-auth]
+type=auth
+auth_type=userpass
+username=direction1
+password=Brasserie@2026
+
+[direction1-aor]
+type=aor
+max_contacts=1
+
+[admin1]
+type=endpoint
+context=brasserie
+disallow=all
+allow=ulaw
+auth=admin1-auth
+aors=admin1-aor
+
+[admin1-auth]
+type=auth
+auth_type=userpass
+username=admin1
+password=Brasserie@2026
+
+[admin1-aor]
+type=aor
+max_contacts=1
+</pre>
+
+<h2>Fichier extensions.conf</h2>
+<p>Chemin : <b>/etc/asterisk/extensions.conf</b></p>
+<p>Ce fichier définit les numéros de poste de chaque utilisateur.</p>
+
+<pre>
+[brasserie]
+exten => 100,1,Dial(PJSIP/employe1)
+exten => 101,1,Dial(PJSIP/employe2)
+exten => 200,1,Dial(PJSIP/direction1)
+exten => 300,1,Dial(PJSIP/admin1)
+</pre>
+
+<table>
+  <tr><th>Utilisateur</th><th>Numéro de poste</th></tr>
+  <tr><td>employe1</td><td>100</td></tr>
+  <tr><td>employe2</td><td>101</td></tr>
+  <tr><td>direction1</td><td>200</td></tr>
+  <tr><td>admin1</td><td>300</td></tr>
+</table>
+
+<hr/>
+
+<h1>Configuration MicroSIP (client)</h1>
+
+<p>MicroSIP est le softphone utilisé sur les PC clients pour passer des appels via Asterisk.</p>
+
+<table>
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Serveur SIP</td><td>192.168.136.54</td></tr>
+  <tr><td>Domaine</td><td>192.168.136.54</td></tr>
+  <tr><td>Nom d'utilisateur</td><td>employe1 (ou autre compte)</td></tr>
+  <tr><td>Mot de passe</td><td>Brasserie@2026</td></tr>
+  <tr><td>Transport</td><td>UDP</td></tr>
+</table>
+
+<hr/>
+
+<h1>Commandes utiles</h1>
+
+<h2>Gestion du service</h2>
+<pre>
+sudo systemctl start asterisk
+sudo systemctl restart asterisk
+sudo systemctl status asterisk
+</pre>
+
+<h2>Console Asterisk CLI</h2>
+<pre>
+sudo asterisk -rvv           # Se connecter à la console
+pjsip show endpoints         # Afficher les endpoints configurés
+pjsip show transports        # Afficher les transports
+pjsip show registrations     # Afficher les enregistrements
+pjsip set logger on          # Activer les logs PJSIP
+pjsip reload                 # Recharger la config PJSIP
+dialplan reload              # Recharger le dialplan
+dialplan show brasserie      # Afficher les extensions du contexte
+core show version            # Afficher la version
+exit                         # Quitter la console
+</pre>
+
+<h2>Vérification des ports</h2>
+<pre>
+sudo ss -ulnp | grep 5060    # Vérifier qu'Asterisk écoute sur UDP 5060
+</pre>
+
+<hr/>
+
+<h1>Problèmes rencontrés</h1>
+
+<div class="problem">
+  <b>Problème 1 — Le paquet asterisk n'est pas disponible dans les dépôts Debian 13</b>
+  <p>Cause : Asterisk n'est pas packagé pour Debian 13 (Trixie).</p>
+  <p>Solution : Compiler depuis les sources officielles avec <b>./configure --with-jansson-bundled</b>.</p>
+</div>
+
+<div class="problem">
+  <b>Problème 2 — Asterisk ne démarre pas après installation</b>
+  <p>Cause : Des processus Asterisk orphelins tournaient en arrière-plan.</p>
+  <p>Solution : <b>sudo killall -9 asterisk</b> puis <b>sudo /usr/sbin/asterisk -vvvg &</b></p>
+</div>
+
+<div class="problem">
+  <b>Problème 3 — MicroSIP retourne 404 Not Found lors de l'enregistrement</b>
+  <p>Cause : Les sections dans pjsip.conf n'étaient pas correctement séparées (pas de ligne vide entre les blocs).</p>
+  <p>Solution : Ajouter une ligne vide entre chaque section [endpoint], [auth] et [aor] dans pjsip.conf.</p>
+</div>
+
+<div class="problem">
+  <b>Problème 4 — Les endpoints restent en statut "Unavailable"</b>
+  <p>Cause : Le client SIP n'arrivait pas à s'enregistrer à cause d'un problème d'authentification.</p>
+  <p>Solution : Utiliser <b>pjsip set logger on</b> dans la console Asterisk pour voir les échanges SIP et diagnostiquer le problème.</p>
+</div>
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+</body>
+</html>

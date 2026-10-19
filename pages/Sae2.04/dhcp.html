@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>DHCP — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html" class="active">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+
+<h1>Serveur DHCP — Windows Server</h1>
+
+<h2>Présentation</h2>
+<p>Le serveur DHCP est installé sur le Windows Server (contrôleur de domaine). Il distribue automatiquement les adresses IP à tous les PC clients de chaque VLAN. Pour que le serveur DHCP puisse distribuer des adresses à travers les VLANs, la commande <b>ip helper-address</b> est configurée sur chaque sous-interface du routeur.</p>
+
+<h2>Étendues et plages d'adresses par VLAN</h2>
+<img src="image/Dhcp_etendu_etPool.png" width="700" alt="Étendues DHCP">
+
+<h2>Tableau récapitulatif</h2>
+<table border="1">
+  <tr><th>VLAN</th><th>Plage distribuée</th><th>Masque</th><th>Passerelle</th><th>DNS</th></tr>
+  <tr><td>10 — Employés</td><td>192.168.136.10 à .14</td><td>255.255.255.240</td><td>192.168.136.1</td><td>192.168.136.51</td></tr>
+  <tr><td>20 — Direction</td><td>192.168.136.20 à .30</td><td>255.255.255.240</td><td>192.168.136.17</td><td>192.168.136.51</td></tr>
+  <tr><td>30 — Admin</td><td>192.168.136.36 à .46</td><td>255.255.255.240</td><td>192.168.136.33</td><td>192.168.136.51</td></tr>
+  <tr><td>40 — DMZ</td><td>192.168.136.52 à .62</td><td>255.255.255.240</td><td>192.168.136.49</td><td>192.168.136.51</td></tr>
+  <tr><td>60 — Wifi</td><td>192.168.136.68 à .78</td><td>255.255.255.240</td><td>192.168.136.65</td><td>192.168.117.181</td></tr>
+</table>
+
+<h2>Options d'étendue (Routeur + DNS)</h2>
+<img src="image/Dhcp2.png" width="700" alt="Options DHCP">
+
+<h2>Configuration ip helper-address sur le routeur</h2>
+<pre>
+interface GigabitEthernet0/0/1.10
+ ip helper-address 192.168.136.51
+
+interface GigabitEthernet0/0/1.20
+ ip helper-address 192.168.136.51
+
+interface GigabitEthernet0/0/1.30
+ ip helper-address 192.168.136.51
+
+interface GigabitEthernet0/0/1.60
+ ip helper-address 192.168.136.51
+</pre>
+
+<h2>Autorisation du DHCP dans l'Active Directory</h2>
+<p>Après la promotion du serveur Windows en Contrôleur de Domaine, le serveur DHCP doit être autorisé dans l'AD :</p>
+<ol>
+  <li>Ouvrir le Gestionnaire DHCP (dhcpmgmt.msc)</li>
+  <li>Clic droit sur le serveur → <b>Autoriser</b></li>
+  <li>Actualiser — le serveur passe au vert ✅</li>
+</ol>
+
+<h2>Problèmes rencontrés</h2>
+<p><b>Problème 1 — Les PC ne reçoivent pas d'IP</b></p>
+<p>Cause : Le serveur DHCP n'était pas autorisé dans l'Active Directory après la promotion en DC.</p>
+<p>Solution : dhcpmgmt.msc > clic droit sur le serveur > Autoriser.</p>
+
+<p><b>Problème 2 — Les PC ne reçoivent pas le bon DNS</b></p>
+<p>Cause : L'option 006 dans les étendues DHCP pointait vers le DNS de la salle (192.168.117.181) au lieu du serveur Windows (192.168.136.51).</p>
+<p>Solution : Modifier l'option 006 dans chaque étendue VLAN (10, 20, 30) pour pointer vers 192.168.136.51.</p>
+
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Active Directory & DNS — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html" class="active">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+
+<h1>Active Directory & DNS — Windows Server</h1>
+
+<h2>Présentation</h2>
+<p>L'Active Directory (AD) est un service d'annuaire Microsoft qui centralise la gestion des identités, des utilisateurs, des ordinateurs et des ressources du réseau. Le domaine créé est <b>brasserie.local</b>.</p>
+<p>L'AD repose entièrement sur le DNS pour fonctionner. Sans DNS, les PC clients ne peuvent pas localiser le Contrôleur de Domaine et rejoindre le domaine.</p>
+
+<h2>Informations du domaine</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Nom de domaine</td><td>brasserie.local</td></tr>
+  <tr><td>Nom NetBIOS</td><td>BRASSERIE</td></tr>
+  <tr><td>IP du serveur</td><td>192.168.136.51</td></tr>
+  <tr><td>Mot de passe Administrateur</td><td>Admin123</td></tr>
+  <tr><td>Mot de passe DSRM</td><td>Brasserie@2026!</td></tr>
+</table>
+
+<h2>Installation de l'Active Directory</h2>
+
+<h3>Étape 1 — IP fixe obligatoire</h3>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Adresse IP</td><td>192.168.136.51</td></tr>
+  <tr><td>Masque</td><td>255.255.255.240</td></tr>
+  <tr><td>Passerelle</td><td>192.168.136.49</td></tr>
+  <tr><td>DNS primaire</td><td>192.168.136.51 (lui-même)</td></tr>
+</table>
+
+<h3>Étape 2 — Installation du rôle AD DS</h3>
+<ol>
+  <li>Gestionnaire de serveur → Ajouter des rôles et fonctionnalités</li>
+  <li>Cocher <b>Active Directory Domain Services</b></li>
+  <li>Cocher aussi <b>DNS Server</b> (obligatoire)</li>
+  <li>Installer</li>
+</ol>
+
+<h3>Étape 3 — Promotion en Contrôleur de Domaine</h3>
+<ol>
+  <li>Drapeau jaune → Promouvoir ce serveur en contrôleur de domaine</li>
+  <li>Choisir <b>Ajouter une nouvelle forêt</b></li>
+  <li>Nom de domaine racine : <b>brasserie.local</b></li>
+  <li>Niveau fonctionnel : Windows Server 2022</li>
+  <li>Cocher : Serveur DNS + Catalogue global</li>
+  <li>Mot de passe DSRM : Brasserie@2026!</li>
+  <li>Installer → le serveur redémarre automatiquement</li>
+</ol>
+
+<h2>Unités Organisationnelles et utilisateurs</h2>
+<img src="image/active_directory.png" width="700" alt="Console Active Directory">
+
+<table border="1">
+  <tr><th>OU</th><th>Utilisateurs</th><th>Mot de passe</th></tr>
+  <tr><td>Employes</td><td>employe1, employe2</td><td>Brasserie@2026</td></tr>
+  <tr><td>Direction</td><td>direction1</td><td>Brasserie@2026</td></tr>
+  <tr><td>Admin</td><td>admin1</td><td>Brasserie@2026</td></tr>
+</table>
+
+<h2>Configuration DNS</h2>
+<h3>Forwarder vers le DNS de la salle</h3>
+<ol>
+  <li>dnsmgmt.msc → clic droit sur le serveur → Propriétés → onglet Redirecteurs</li>
+  <li>Le forwarder 192.168.117.181 était déjà présent automatiquement</li>
+</ol>
+<p>Résultat : brasserie.local est résolu par le serveur Windows, et google.com est transféré au DNS de la salle.</p>
+
+<h3>Enregistrement DNS pour le site web</h3>
+<ol>
+  <li>dnsmgmt.msc → clic droit sur brasserie.local → Nouvel hôte (A)</li>
+  <li>Nom : www | IP : 192.168.136.11</li>
+  <li>Ajouter un hôte</li>
+</ol>
+
+<h2>Jonction d'un PC client au domaine</h2>
+<ol>
+  <li>Windows + Pause → Paramètres avancés du système → Modifier</li>
+  <li>Sélectionner Domaine → taper <b>brasserie.local</b></li>
+  <li>Login : Administrateur | MDP : Admin123</li>
+  <li>Message "Bienvenue dans le domaine brasserie.local" → Redémarrer</li>
+  <li>Se connecter avec employe1 / Brasserie@2026</li>
+</ol>
+
+<h2>Problèmes rencontrés</h2>
+<p><b>Problème 1 — Erreur TCP/IP lors de la promotion</b></p>
+<p>Cause : Le serveur n'avait pas d'IP fixe configurée.</p>
+<p>Solution : Configurer une IP fixe avant de relancer l'assistant AD.</p>
+
+<p><b>Problème 2 — PC client ne trouve pas le domaine</b></p>
+<p>Cause : Le DNS du PC client pointait vers 192.168.117.181 qui ne connaît pas brasserie.local.</p>
+<p>Solution : Modifier l'option 006 dans le DHCP pour distribuer 192.168.136.51 comme DNS.</p>
+
+<p><b>Problème 3 — Mauvais mot de passe pour rejoindre le domaine</b></p>
+<p>Cause : Utilisation du mot de passe Brasserie@2026! au lieu de Admin123.</p>
+<p>Solution : Le mot de passe du compte Administrateur du serveur est Admin123.</p>
+
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+</body>
+</html>

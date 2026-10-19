@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Pare-feu Stormshield — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html" class="active">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+<h1>Pare-feu Stormshield — Configuration et Sécurité</h1>
+
+<h2>Présentation générale</h2>
+<p>Le pare-feu Stormshield (SNS — Stateful Network Security) est un appliance de sécurité réseau qui protège l'infrastructure de l'entreprise. Il contrôle, filtre et inspecte tout le trafic entrant et sortant entre le réseau interne et Internet.</p>
+
+<p>Le pare-feu remplit trois fonctions essentielles :</p>
+<ul>
+  <li><b>Filtrage de trafic :</b> Autoriser ou bloquer les connexions selon des règles définies</li>
+  <li><b>Inspection en profondeur :</b> Analyser le contenu du trafic pour détecter les menaces</li>
+  <li><b>Traduction d'adresses (NAT) :</b> Masquer les adresses internes derrière une adresse publique</li>
+</ul>
+
+<h2>Architecture physique</h2>
+<p>Le pare-feu Stormshield est positionné entre le routeur Cisco et Internet :</p>
+<ul>
+  <li><b>Interface em1 (interne) :</b> Connectée au routeur Cisco (192.168.254.1/30)</li>
+  <li><b>Interface em0 (externe) :</b> Connectée directement à Internet</li>
+</ul>
+
+<p>Le flux du trafic :</p>
+<pre>Réseau interne (192.168.136.0/24) 
+    ↓ (Routeur NAT)
+Routeur Cisco (192.168.254.2)
+    ↓ (Port trunk multi-VLAN)
+Pare-feu Stormshield em1 (192.168.254.1)
+    ↓ (Filtrage, inspection)
+Pare-feu Stormshield em0
+    ↓
+Internet</pre>
+
+<hr/>
+
+<h1>Accès au pare-feu</h1>
+
+<h2>Méthode 1 : Accès CLI via SSH (Terminal PuTTY)</h2>
+<p>PuTTY est un client terminal SSH/Telnet pour Windows. Il permet de se connecter au pare-feu en ligne de commande.</p>
+
+<h3>Configuration de PuTTY</h3>
+<img src="image/firewall_putty.png" width="600" alt="Configuration PuTTY pour accès pare-feu">
+<p class="img-caption">Interface de configuration PuTTY — Session SSH vers le pare-feu</p>
+
+<p><b>Paramètres de connexion :</b></p>
+<ul>
+  <li><b>Serial line :</b> /dev/ttyUSB0 (port série USB — pour accès direct)</li>
+  <li><b>Speed :</b> 150200 (vitesse en bauds)</li>
+  <li><b>Connection type :</b> Sélectionner SSH ou Serial selon la méthode d'accès</li>
+</ul>
+
+<p>Une fois connecté via PuTTY, la console du pare-feu s'affiche. On peut naviguer avec des commandes texte pour configurer le pare-feu.</p>
+
+<h3>Commandes de base du CLI Stormshield</h3>
+<pre>enable              # Activer le mode configuration
+configure terminal  # Entrer en mode configuration
+show interfaces     # Afficher l'état des interfaces
+show routes         # Afficher la table de routage
+exit                # Quitter le mode en cours
+end                 # Quitter la configuration et revenir à l'accueil</pre>
+
+<hr/>
+
+<h2>Méthode 2 : Accès web (Interface GUI)</h2>
+<p>Le pare-feu Stormshield dispose également d'une interface web pour la configuration graphique. Cette méthode est plus intuitive que la CLI.</p>
+
+<p><b>Accès :</b></p>
+<ul>
+  <li>URL : https://192.168.254.1 (ou l'IP du pare-feu)</li>
+  <li>Identifiants : À configurer lors de l'installation initiale</li>
+</ul>
+
+<hr/>
+
+<h1>Configuration du pare-feu via l'interface web</h1>
+
+<h2>Section 1 : Configuration générale</h2>
+<img src="image/firewall_config_general.png" width="700" alt="Configuration générale du pare-feu">
+<p class="img-caption">Interface web — Configuration générale des paramètres</p>
+
+<p>Cette section permet de configurer les paramètres globaux du pare-feu :</p>
+<ul>
+  <li><b>Nom du pare-feu :</b> Identifiant unique</li>
+  <li><b>Fuseau horaire :</b> Important pour les logs et les règles temporelles</li>
+  <li><b>Serveurs DNS :</b> Pour la résolution de noms</li>
+  <li><b>Serveurs NTP :</b> Pour la synchronisation de l'heure</li>
+</ul>
+
+<hr/>
+
+<h2>Section 2 : Configuration des interfaces réseau</h2>
+<img src="image/firewall_config_interfaces.png" width="700" alt="Configuration des interfaces">
+<p class="img-caption">Interface web — Configuration des interfaces réseau (em0, em1, em2, em3)</p>
+
+<p>Les interfaces du pare-feu représentent ses connexions physiques :</p>
+<ul>
+  <li><b>em0 (WAN/Externe) :</b> Connectée à Internet</li>
+  <li><b>em1 (LAN/Interne) :</b> Connectée au routeur interne (192.168.254.1)</li>
+  <li><b>em2, em3 :</b> Autres interfaces (optionnelles)</li>
+</ul>
+
+<p>Chaque interface a :</p>
+<ul>
+  <li>Une adresse IP</li>
+  <li>Un masque de sous-réseau</li>
+  <li>Un statut (activée/désactivée)</li>
+  <li>Une description</li>
+</ul>
+
+<hr/>
+
+<h2>Section 3 : Objets réseau et adresses IP</h2>
+<img src="image/firewall_objets_reseau.png" width="700" alt="Objets réseau et adresses IP">
+<p class="img-caption">Interface web — Définition des objets réseau (adresses IP, groupes)</p>
+
+<p>Cette section permet de créer des objets réseau réutilisables dans les règles de filtrage :</p>
+<ul>
+  <li><b>Adresses IP :</b> Machines individuelles (ex: 192.168.136.51 = Serveur DNS)</li>
+  <li><b>Groupes d'adresses :</b> Ensembles d'adresses (ex: Groupe "Serveurs DMZ")</li>
+  <li><b>Plages :</b> Plages d'adresses IP (ex: 192.168.136.0/24 = Réseau interne)</li>
+</ul>
+
+<p>Les objets créés peuvent ensuite être utilisés dans les règles du pare-feu sans avoir à recopier les adresses.</p>
+
+<hr/>
+
+<h2>Section 4 : Routage</h2>
+<img src="image/firewall_routage.png" width="700" alt="Configuration du routage">
+<p class="img-caption">Interface web — Table de routage et routes par défaut</p>
+
+<p>Le pare-feu doit connaître le chemin pour atteindre les différents réseaux :</p>
+<ul>
+  <li><b>Route par défaut :</b> Vers Internet (généralement via le FAI)</li>
+  <li><b>Routes internes :</b> Vers les réseaux locaux (192.168.136.0/24 via routeur)</li>
+</ul>
+
+<p>Exemple de configuration :</p>
+<ul>
+  <li><b>Destination :</b> 0.0.0.0/0 (tout Internet)</li>
+  <li><b>Passerelle :</b> IP du FAI (ex: 172.25.255.254)</li>
+  <li><b>Interface :</b> em0 (interface externe)</li>
+</ul>
+
+<hr/>
+
+<h2>Section 5 : Règles de filtrage (Firewall Rules)</h2>
+<img src="image/firewall_regles_filtrage.png" width="700" alt="Règles de filtrage du pare-feu">
+<p class="img-caption">Interface web — Règles de filtrage de trafic (Inbound et Outbound)</p>
+
+<p>Les règles de filtrage décident quel trafic est autorisé ou bloqué. Il y a deux types :</p>
+
+<h3>Règles Inbound (Trafic entrant d'Internet)</h3>
+<p>Par défaut, tout trafic entrant est bloqué (politique par défaut restrictive). Il faut créer des règles explicites pour permettre l'accès à des services internes.</p>
+
+<p><b>Exemple :</b> Permettre l'accès au serveur web en DMZ</p>
+<ul>
+  <li><b>Source :</b> Any (n'importe où sur Internet)</li>
+  <li><b>Destination :</b> 192.168.136.52 (Serveur Web)</li>
+  <li><b>Port :</b> 80, 443 (HTTP, HTTPS)</li>
+  <li><b>Action :</b> ACCEPT</li>
+</ul>
+
+<h3>Règles Outbound (Trafic sortant vers Internet)</h3>
+<p>Par défaut, tout trafic sortant du réseau interne est autorisé (politique par défaut permissive). On peut restreindre certaines destinations ou ports pour des raisons de sécurité.</p>
+
+<p><b>Exemple :</b> Bloquer l'accès à des sites de streaming</p>
+<ul>
+  <li><b>Source :</b> Réseau interne (192.168.136.0/24)</li>
+  <li><b>Destination :</b> Adresses IP de streaming (groupe d'objets)</li>
+  <li><b>Action :</b> DROP</li>
+</ul>
+
+<hr/>
+
+<h2>Section 6 : Inspection du trafic (NAT et Traduction d'adresses)</h2>
+<img src="image/firewall_inspection_trafic.png" width="700" alt="Inspection du trafic et NAT">
+<p class="img-caption">Interface web — Inspection profonde du trafic et traduction d'adresses</p>
+
+<p>Le pare-feu peut effectuer une traduction d'adresses (NAT) pour masquer les adresses internes :</p>
+<ul>
+  <li><b>Source NAT (SNAT) :</b> Remplace l'adresse source (utilisée pour sortir vers Internet)</li>
+  <li><b>Destination NAT (DNAT) :</b> Remplace l'adresse destination (utilisée pour exposer des services internes)</li>
+</ul>
+
+<p><b>Exemple DNAT :</b> Exposer le serveur web interne à Internet</p>
+<pre>Adresse externe : 172.25.0.136:80
+↓ (Traduction)
+Adresse interne : 192.168.136.52:80</pre>
+
+<hr/>
+
+<h1>Flux de traitement du trafic par le pare-feu</h1>
+
+<p>Quand un paquet arrive au pare-feu, il passe par plusieurs étapes :</p>
+
+<ol>
+  <li><b>Réception :</b> Le paquet arrive sur l'interface em0 (Internet) ou em1 (Réseau interne)</li>
+  <li><b>Lecture des en-têtes :</b> Extraction de la source, destination, port, protocole</li>
+  <li><b>Recherche de règle correspondante :</b> Les règles sont évaluées de haut en bas (première correspondance = décision finale)</li>
+  <li><b>Décision :</b> ACCEPT (autoriser), DROP (rejeter silencieusement), REJECT (rejeter avec notification)</li>
+  <li><b>Inspection (si nécessaire) :</b> Analyser le contenu pour détecter les menaces</li>
+  <li><b>Traduction d'adresses (si nécessaire) :</b> Appliquer les règles de NAT</li>
+  <li><b>Transmission :</b> Envoyer le paquet vers sa destination</li>
+  <li><b>Enregistrement :</b> Ecrire un log si la règle l'exige</li>
+</ol>
+
+<hr/>
+
+<h1>Concepts clés</h1>
+
+<h2>Politique par défaut</h2>
+<p>Chaque pare-feu a une politique par défaut pour le trafic qui ne correspond à aucune règle :</p>
+<ul>
+  <li><b>Inbound par défaut : DROP</b> (rejeter tout trafic entrant non autorisé)</li>
+  <li><b>Outbound par défaut : ACCEPT</b> (autoriser tout trafic sortant)</li>
+</ul>
+
+<h2>Stateful Firewall</h2>
+<p>Un pare-feu "stateful" comme Stormshield mémorise les connexions établies. Si une connexion est ouverte, les réponses sont automatiquement autorisées sans avoir à créer une règle inverse.</p>
+
+<p><b>Exemple :</b> Un utilisateur interne demande une page web (port 80 sortant). Le pare-feu mémorise cette connexion et autorise automatiquement les réponses (port 80 entrant).</p>
+
+<h2>Zones de sécurité</h2>
+<p>Le pare-feu divise le réseau en zones :</p>
+<ul>
+  <li><b>Zone WAN (Wide Area Network) :</b> Internet (em0) — Non fiable</li>
+  <li><b>Zone LAN (Local Area Network) :</b> Réseau interne (em1) — De confiance</li>
+  <li><b>Zone DMZ :</b> Serveurs publics — Confiance moyenne</li>
+</ul>
+
+<h2>Logs et alertes</h2>
+<p>Le pare-feu enregistre toutes les connexions (ou seulement les bloquées, selon la configuration). Les logs permettent :</p>
+<ul>
+  <li>Audit de sécurité</li>
+  <li>Diagnostic des problèmes de connectivité</li>
+  <li>Détection des attaques</li>
+</ul>
+
+<hr/>
+
+<h1>Problèmes courants et solutions</h1>
+
+<div class="problem">
+  <b>Problème 1 — Les clients externes ne peuvent pas accéder au serveur web</b>
+  <p><b>Cause :</b> Pas de règle de filtrage permettant l'accès au port 80/443, ou DNAT mal configuré.</p>
+  <p><b>Solution :</b> Vérifier que la règle inbound autorise HTTP/HTTPS vers l'IP du serveur web (192.168.136.52). Vérifier la configuration DNAT pour rediriger le trafic externe vers le serveur interne.</p>
+</div>
+
+<div class="problem">
+  <b>Problème 2 — Les utilisateurs internes n'accèdent plus à Internet</b>
+  <p><b>Cause :</b> Règle outbound trop restrictive, ou SNAT mal configuré.</p>
+  <p><b>Solution :</b> Vérifier la règle outbound par défaut. Vérifier que le SNAT remplace correctement les adresses internes par l'adresse publique du pare-feu.</p>
+</div>
+
+<div class="problem">
+  <b>Problème 3 — Le pare-feu ne route pas les paquets inter-VLAN</b>
+  <p><b>Cause :</b> Route manquante ou interface em1 non configurée.</p>
+  <p><b>Solution :</b> Ajouter une route vers 192.168.136.0/24 via la passerelle 192.168.254.2 (routeur interne). Vérifier que l'interface em1 est activée et a l'adresse IP 192.168.254.1.</p>
+</div>
+
+<div class="problem">
+  <b>Problème 4 — Le pare-feu rejette tout le trafic de sorties</b>
+  <p><b>Cause :</b> Politique outbound par défaut changée en DROP, ou règles trop restrictives.</p>
+  <p><b>Solution :</b> Vérifier la politique par défaut outbound. Créer des règles explicites pour les services autorisés (DNS, HTTP, HTTPS, etc.).</p>
+</div>
+
+<hr/>
+
+<h1>Commandes utiles pour le dépannage</h1>
+
+<table>
+  <tr><th>Commande</th><th>Utilité</th></tr>
+  <tr><td>show interfaces</td><td>Affiche l'état des interfaces (em0, em1, etc.)</td></tr>
+  <tr><td>show routes</td><td>Affiche la table de routage</td></tr>
+  <tr><td>show firewall rules</td><td>Affiche les règles de filtrage actives</td></tr>
+  <tr><td>show nat rules</td><td>Affiche les règles de traduction d'adresses</td></tr>
+  <tr><td>show logs firewall</td><td>Affiche les logs des connexions bloquées/autorisées</td></tr>
+  <tr><td>ping 8.8.8.8</td><td>Teste la connectivité vers Internet</td></tr>
+  <tr><td>traceroute 8.8.8.8</td><td>Trace le chemin vers une adresse</td></tr>
+  <tr><td>show connections</td><td>Affiche les connexions actives en cours</td></tr>
+</table>
+
+<hr/>
+
+<h1>Configuration recommandée pour Les 3 Brasseurs</h1>
+
+<h2>Architecture sécurisée</h2>
+<ul>
+  <li><b>Zone WAN (em0) :</b> Internet — Complètement non fiable</li>
+  <li><b>Zone LAN (em1) :</b> Réseau interne — Entièrement fiable</li>
+</ul>
+
+<h2>Règles inbound recommandées</h2>
+<pre>
+1. ACCEPT  : Sources=Any, Destination=192.168.136.52:80, 443  (Serveur Web)
+2. ACCEPT  : Sources=Any, Destination=192.168.136.51:53       (DNS externe)
+3. DROP    : Any other inbound traffic
+</pre>
+
+<h2>Règles outbound recommandées</h2>
+<pre>
+1. ACCEPT  : Sources=192.168.136.0/24, Destination=Any, Ports=53 (DNS)
+2. ACCEPT  : Sources=192.168.136.0/24, Destination=Any, Ports=80,443 (Web)
+3. ACCEPT  : Sources=192.168.136.0/24, Destination=Any, Ports=25,587 (Mail)
+4. DROP    : Any other outbound traffic
+</pre>
+
+<h2>Règles NAT recommandées</h2>
+<pre>
+SNAT      : Sources=192.168.136.0/24 → 172.25.0.136 (masquer adresses internes)
+DNAT      : Destination=172.25.0.136:80 → 192.168.136.52:80 (exposer serveur web)
+DNAT      : Destination=172.25.0.136:53 → 192.168.136.51:53 (exposer serveur DNS)
+</pre>
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Logs & Alertes — Les 3 Brasseurs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD & DNS</a>
+  <a href="gpo.html">6. GPO & RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html" class="active">10. Logs & Alertes</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+
+<div class="container">
+  <h1>Logs & Système d'alertes</h1>
+
+  <div class="section">
+    <h2>Présentation</h2>
+    <p>Un système de surveillance en temps réel a été mis en place pour détecter les tentatives d'attaque par force brute sur le serveur Windows. Lorsque 5 échecs de connexion sont détectés en moins de 30 secondes, une alerte est automatiquement générée et affichée sur le site web de la brasserie.</p>
+
+    <h3>Architecture du système</h3>
+    <table>
+      <tr><th>Composant</th><th>Rôle</th><th>Machine</th></tr>
+      <tr><td>Script PowerShell</td><td>Surveille l'Observateur d'événements Windows (ID 4625)</td><td>Windows Server</td></tr>
+      <tr><td>Script Bash</td><td>Lit le fichier de log et génère le JSON d'alerte</td><td>Serveur Linux</td></tr>
+      <tr><td>receiver.php</td><td>Reçoit les alertes du Windows Server</td><td>Serveur Linux (Apache)</td></tr>
+      <tr><td>Site web</td><td>Affiche l'alerte en temps réel</td><td>Serveur Linux</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Fonctionnement</h2>
+    <p>Le système fonctionne en deux étapes :</p>
+    <ol>
+      <li>Le script <b>PowerShell</b> tourne en permanence sur le Windows Server. Il surveille les événements de sécurité <b>ID 4625</b> (échec de connexion). Si 5 échecs sont détectés en moins de 30 secondes, il envoie une alerte JSON au serveur Linux via HTTP POST.</li>
+      <li>Le serveur Linux reçoit l'alerte via <b>receiver.php</b> et le script <b>Bash</b> surveille le fichier de log pour mettre à jour le fichier JSON affiché sur le site web.</li>
+    </ol>
+
+    <div class="warning">
+      Quand le calme revient (moins de 5 échecs dans les 30 dernières secondes), l'alerte est automatiquement désactivée après 2 minutes.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Script PowerShell — Windows Server</h2>
+    <p>Ce script tourne en permanence sur le Windows Server et surveille l'Observateur d'événements en temps réel.</p>
+<pre>
+$IP_DEBIAN = "192.168.136.54"
+$URL_RECEIVER = "http://$IP_DEBIAN/traitement/receiver.php"
+
+$alert_active = $false
+
+while ($true) {
+    $now = Get-Date
+    $il_y_a_30_secondes = $now.AddSeconds(-30)
+
+    # Cherche les EventID 4625 des 30 dernières secondes
+    $events = Get-WinEvent -FilterHashtable @{
+        LogName='Security'; Id=4625; StartTime=$il_y_a_30_secondes
+    } -ErrorAction SilentlyContinue
+
+    if ($events -and $events.Count -ge 5) {
+        if (-not $alert_active) {
+            $logs_web = @()
+            foreach ($e in $events) {
+                $logs_web += "[$($e.TimeCreated.ToString('HH:mm:ss'))] Connexion refusée (Event 4625)"
+            }
+
+            $body = @{
+                alerte  = $true
+                message = "Attaque par force brute détectée !"
+                date    = $now.ToString("dd/MM/yyyy HH:mm:ss")
+                logs    = $logs_web
+            } | ConvertTo-Json -Compress
+
+            Invoke-RestMethod -Uri $URL_RECEIVER -Method Post -Body $body -ContentType "application/json"
+            $alert_active = $true
+        }
+    } else {
+        if ($alert_active) {
+            $body = @{ alerte = $false; date = $now.ToString("dd/MM/yyyy HH:mm:ss") } | ConvertTo-Json -Compress
+            Invoke-RestMethod -Uri $URL_RECEIVER -Method Post -Body $body -ContentType "application/json"
+            $alert_active = $false
+        }
+    }
+    Start-Sleep -Seconds 5
+}
+</pre>
+  </div>
+
+  <div class="section">
+    <h2>Script Bash — Serveur Linux</h2>
+    <p>Ce script surveille le fichier de log en temps réel et génère le fichier JSON affiché sur le site web.</p>
+<pre>
+#!/bin/bash
+
+LOG_FILE="/var/log/windows_failed_logins.log"
+JSON_OUTPUT="/var/www/html/assets/alertes/alerte_connexion.json"
+
+# Initialisation — pas d'alerte
+echo "{\"alerte\": false, \"date\": \"$(date '+%d/%m/%Y %H:%M:%S')\"}" > "$JSON_OUTPUT"
+
+timestamps=()
+log_lines=()
+
+tail -Fn0 "$LOG_FILE" | while read -r line; do
+
+    # Ignorer les lignes grep
+    if [[ "$line" == *"grep"* ]]; then continue; fi
+
+    now=$(date +%s)
+    timestamps+=("$now")
+    log_lines+=("$line")
+
+    # Supprimer les échecs de plus de 30 secondes
+    while [ ${#timestamps[@]} -gt 0 ] && \
+          [ $((now - timestamps[0])) -gt 30 ]; do
+        timestamps=("${timestamps[@]:1}")
+        log_lines=("${log_lines[@]:1}")
+    done
+
+    # 5 échecs en moins de 30 secondes → alerte
+    if [ ${#timestamps[@]} -ge 5 ]; then
+        date_incident=$(date '+%d/%m/%Y %H:%M:%S')
+        json_logs=""
+        for l in "${log_lines[@]}"; do
+            clean_line=$(echo "$l" | sed 's/"/\\"/g' | tr -d '\r\n')
+            json_logs="$json_logs\"$clean_line\","
+        done
+        json_logs="${json_logs%,}"
+
+        cat > "$JSON_OUTPUT" << JSONEOF
+{
+  "alerte": true,
+  "message": "Attaque par force brute suspectée : 5 échecs en moins de 30 secondes.",
+  "date": "$date_incident",
+  "logs": [$json_logs]
+}
+JSONEOF
+
+        timestamps=()
+        log_lines=()
+
+        # Réinitialisation après 2 minutes
+        ( sleep 120
+          echo "{\"alerte\": false, \"date\": \"$(date '+%d/%m/%Y %H:%M:%S')\"}" > "$JSON_OUTPUT"
+        ) &
+    fi
+done
+</pre>
+
+    <h3>Lancer le script de vérification sur Linux</h3>
+<pre>
+sudo bash /chemin/vers/script_surveillance.sh
+</pre>
+  </div>
+
+  <div class="section">
+    <h2>Résultat — Alerte affichée sur le site web</h2>
+    <img src="image/resultat_log.png" alt="Résultat alerte sur le site web">
+    <p class="img-caption">Alerte affichée sur le site web lors d'une tentative de force brute détectée</p>
+  </div>
+
+  <div class="section">
+    <h2>Vérification sur le serveur Linux</h2>
+    <img src="image/verif_linux.png" alt="Vérification du script sur Linux">
+    <p class="img-caption">Terminal Linux — Script bash en cours d'exécution et détection d'une alerte</p>
+  </div>
+
+  <div class="section">
+    <h2>Événements Windows surveillés</h2>
+    <table>
+      <tr><th>ID Événement</th><th>Signification</th><th>Action déclenchée</th></tr>
+      <tr><td>4625</td><td>Échec de connexion (mauvais mot de passe)</td><td>Comptage — alerte si ≥ 5 en 30s</td></tr>
+      <tr><td>4740</td><td>Compte verrouillé</td><td>Visible dans eventvwr.msc</td></tr>
+      <tr><td>4624</td><td>Connexion réussie</td><td>Reset du compteur</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<footer>Université Clermont Auvergne — Juin 2026 — SAE 204</footer>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>GPO, RDP & Pare-feu — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html" class="active">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+
+<h1>GPO, RDP & Pare-feu — Active Directory</h1>
+
+<h2>Présentation</h2>
+<p>Les GPO (Group Policy Objects) sont des stratégies de groupe qui permettent d'appliquer automatiquement des règles et restrictions sur tous les PC du domaine depuis le serveur AD.</p>
+
+<h2>1. GPO : securite-Globale</h2>
+<p>Appliquée sur <b>brasserie.local</b>. Politique de mot de passe et verrouillage de compte pour tous les utilisateurs.</p>
+
+<h3>Politique de mot de passe</h3>
+<p>Chemin : Configuration ordinateur > Paramètres Windows > Paramètres de sécurité > Stratégies de comptes > Stratégie de mot de passe</p>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Longueur minimale</td><td>8 caractères</td></tr>
+  <tr><td>Complexité</td><td>Activée</td></tr>
+  <tr><td>Historique</td><td>5 mots de passe</td></tr>
+  <tr><td>Expiration</td><td>0 (jamais)</td></tr>
+</table>
+
+<h3>Verrouillage de compte — après 5 tentatives échouées</h3>
+<p>Chemin : Configuration ordinateur > Paramètres Windows > Paramètres de sécurité > Stratégies de comptes > Stratégie de verrouillage du compte</p>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Seuil de verrouillage</td><td>5 tentatives</td></tr>
+  <tr><td>Durée de verrouillage</td><td>10 minutes</td></tr>
+  <tr><td>Réinitialisation du compteur</td><td>10 minutes</td></tr>
+</table>
+<img src="image/vérrouillage_compt.PNG" width="700" alt="Stratégie de verrouillage du compte">
+
+<h2>2. GPO : Audit-Logs</h2>
+<p>Appliquée sur <b>brasserie.local</b>. Permet de détecter les tentatives répétées de connexion avec un mauvais mot de passe.</p>
+<p>Chemin : Configuration ordinateur > Paramètres Windows > Paramètres de sécurité > Stratégies locales > Stratégie d'audit</p>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Auditer les événements de connexion</td><td>Succès + Échec</td></tr>
+  <tr><td>Auditer la gestion des comptes</td><td>Succès + Échec</td></tr>
+  <tr><td>Auditer l'accès aux objets</td><td>Échec</td></tr>
+</table>
+<img src="image/audit-Logs.png" width="700" alt="Configuration Audit-Logs">
+
+<h3>Consulter les logs — eventvwr.msc > Journaux Windows > Sécurité</h3>
+<table border="1">
+  <tr><th>ID Événement</th><th>Signification</th></tr>
+  <tr><td>4625</td><td>Échec de connexion (mauvais mot de passe)</td></tr>
+  <tr><td>4740</td><td>Compte verrouillé</td></tr>
+  <tr><td>4624</td><td>Connexion réussie</td></tr>
+  <tr><td>4720 / 4726</td><td>Compte créé / supprimé</td></tr>
+</table>
+
+<h2>3. GPO : Restrictions-Employes</h2>
+<p>Appliquée sur l'OU <b>Employes</b>. Un employé de salle n'a pas besoin d'accéder aux outils système.</p>
+
+<h3>Création de la GPO</h3>
+<img src="image/capture_création_OU.png" width="700" alt="Création GPO">
+
+<h3>Bloquer CMD</h3>
+<p>Chemin : Configuration utilisateur > Modèles d'administration > Système</p>
+<p>Paramètre : <b>Empêcher l'accès à l'invite de commandes</b> → Activé</p>
+<p><b>Important :</b> Laisser "Désactiver le traitement des scripts" sur NON !</p>
+<img src="image/capture_blocage_CMD.png" width="700" alt="Bloquer CMD">
+
+<h3>Bloquer le panneau de configuration</h3>
+<p>Chemin : Configuration utilisateur > Modèles d'administration > Panneau de configuration</p>
+<p>Paramètre : <b>Interdire l'accès au Panneau de configuration</b> → Activé</p>
+
+<h3>Verrouillage écran 10 minutes</h3>
+<img src="image/Capture000.PNG" width="700" alt="Activer l'écran de veille">
+<img src="image/Capture001.PNG" width="700" alt="Délai écran de veille 600 secondes">
+
+<h3>Fond d'écran imposé</h3>
+<p>Chemin : Configuration utilisateur > Modèles d'administration > Bureau > Bureau > Papier peint du Bureau</p>
+<p>Chemin de l'image : <b>\\WIN-BP3D7QBDLSO\Wallpapers\employe.jpg</b></p>
+<img src="image/Capture555.PNG" width="700" alt="Configuration fond d'écran">
+
+<h2>4. GPO : Restrictions-Directions</h2>
+<p>Appliquée sur l'OU <b>Direction</b>. Moins restrictive que les employés.</p>
+<img src="image/capture_restriction-direction.png" width="700" alt="GPO Restrictions-Directions">
+<ul>
+  <li>Bloquer CMD → même chemin que Employes</li>
+  <li>Verrouillage écran 10 min + mot de passe obligatoire</li>
+  <li>Fond d'écran : \\WIN-BP3D7QBDLSO\Wallpapers\direction.jpg</li>
+</ul>
+
+<h2>5. RDP — Accès Bureau à Distance</h2>
+<p>L'administrateur peut accéder au bureau du serveur à distance depuis le PC admin sans toucher physiquement au serveur.</p>
+
+<h3>Activation du RDP sur le serveur</h3>
+<ol>
+  <li>Clic droit Ce PC → Propriétés → Paramètres d'utilisation à distance</li>
+  <li>Autoriser les connexions à distance → Sélectionner les utilisateurs → Ajouter admin1</li>
+</ol>
+
+<h3>Connexion depuis le PC admin</h3>
+<ol>
+  <li>Windows + R → mstsc → Entrée</li>
+  <li>Ordinateur : 192.168.136.51</li>
+  <li>Login : Administrateur | MDP : Admin123</li>
+</ol>
+<img src="image/Connexion_distance.png" width="500" alt="Connexion RDP">
+<img src="image/connexion_distance_réussie.png" width="700" alt="Bureau du serveur via RDP">
+
+<h2>6. Pare-feu — Règles pour la gestion à distance</h2>
+<p>Pour accéder à eventvwr.msc du serveur depuis le PC admin, les règles pare-feu suivantes doivent être activées via <b>wf.msc</b> :</p>
+<ol>
+  <li>Démarrer → wf.msc</li>
+  <li>Règles de trafic entrant</li>
+  <li>Chercher et activer :
+    <ul>
+      <li>Gestion à distance des journaux des événements (NP-Entrée)</li>
+      <li>Accès réseau COM+ (DCOM-In)</li>
+      <li>Bureau à distance - Mode utilisateur (TCP-Entrée)</li>
+    </ul>
+  </li>
+</ol>
+<img src="image/pare-feu.png" width="700" alt="Règle pare-feu NP-Entrée activée">
+
+<h2>Problèmes rencontrés</h2>
+<p><b>Problème 1 — GPO refusée</b></p>
+<p>Cause : Le filtrage de sécurité ne contenait pas "Utilisateurs authentifiés" et "Ordinateurs du domaine".</p>
+<p>Solution : gpmc.msc > GPO > onglet Étendue > Filtrage de sécurité > Ajouter les deux groupes.</p>
+
+<p><b>Problème 2 — Fond d'écran noir</b></p>
+<p>Cause : Le chemin UNC avec l'IP (\\192.168.136.51\Wallpapers) ne fonctionnait pas.</p>
+<p>Solution : Utiliser le nom NetBIOS du serveur : \\WIN-BP3D7QBDLSO\Wallpapers\employe.jpg</p>
+
+<p><b>Problème 3 — RDP refusé malgré le bon mot de passe</b></p>
+<p>Cause : admin1 n'était pas dans le groupe Builtin\Administrateurs du DC.</p>
+<p>Solution : dsa.msc > Builtin > Administrateurs > onglet Membres > Ajouter admin1.</p>
+
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+</body>
+</html>

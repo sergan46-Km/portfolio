@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Infrastructure Réseau — Les 3 Brasseurs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Les 3 Brasseurs</h1>
+  <div class="subtitle">Infrastructure Réseau</div>
+  <div class="badge">Bassaiev Malik · Mohamed Abou Firnas · Duverger Elliot · Ali Kassim</div>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+
+<nav>
+  <a href="index.html" class="active">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD & DNS</a>
+  <a href="gpo.html">6. GPO & RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+
+<div class="container">
+  <h1>Présentation du projet</h1>
+
+  <div class="section">
+    <p>Ce site présente l'infrastructure réseau déployée pour la brasserie fictive <b>Les 3 Brasseurs</b> dans le cadre de la SAE 204. L'objectif était de concevoir et mettre en place une infrastructure réseau complète pour une petite entreprise constituée de plusieurs services.</p>
+    <p>L'infrastructure comprend : un switch avec VLANs, un routeur de périphérie, un serveur Windows (Active Directory, DNS, DHCP), un serveur Linux (messagerie, site web), un serveur téléphonique (Asterisk) et un point d'accès Wifi.</p>
+  </div>
+
+  <h2>Sommaire</h2>
+  <div class="sommaire-grid">
+    <a href="wifi.html" class="sommaire-card">
+      <div class="num">01</div>
+      <h3>Wifi D-Link</h3>
+      <p>Configuration du point d'accès DAP-2020, VLAN 60</p>
+    </a>
+    <a href="switch.html" class="sommaire-card">
+      <div class="num">02</div>
+      <h3>Switch Cisco</h3>
+      <p>VLANs, ports, trunk et DHCP Snooping</p>
+    </a>
+    <a href="routeur.html" class="sommaire-card">
+      <div class="num">03</div>
+      <h3>Routeur Cisco</h3>
+      <p>Routage inter-VLAN, NAT et accès sécurisé</p>
+    </a>
+    <a href="dhcp.html" class="sommaire-card">
+      <div class="num">04</div>
+      <h3>Serveur DHCP</h3>
+      <p>Distribution automatique des IPs par VLAN</p>
+    </a>
+    <a href="ad_dns.html" class="sommaire-card">
+      <div class="num">05</div>
+      <h3>Active Directory & DNS</h3>
+      <p>Domaine brasserie.local, OUs, utilisateurs</p>
+    </a>
+    <a href="gpo.html" class="sommaire-card">
+      <div class="num">06</div>
+      <h3>GPO, RDP & Pare-feu</h3>
+      <p>Restrictions, verrouillage, fond d'écran, logs</p>
+    </a>
+    <a href="mail.html" class="sommaire-card">
+      <div class="num">07</div>
+      <h3>Serveur de Messagerie</h3>
+      <p>Postfix + Dovecot, adresses @brasserie.local</p>
+    </a>
+    <a href="asterisk.html" class="sommaire-card">
+      <div class="num">08</div>
+      <h3>Asterisk / PBX</h3>
+      <p>Téléphonie VoIP, postes SIP et contextes</p>
+    </a>
+    <a href="firewall.html" class="sommaire-card">
+      <div class="num">09</div>
+      <h3>Pare-feu Stormshield</h3>
+      <p>Filtrage, routage, NAT et inspection du trafic</p>
+    </a>
+    <a href="logs.html" class="sommaire-card">
+      <div class="num">10</div>
+      <h3>Logs & Alertes</h3>
+      <p>Surveillance en temps réel, détection de force brute</p>
+    </a>
+    <a href="gestion_projet.html" class="sommaire-card">
+      <div class="num">11</div>
+      <h3>Gestion de Projet</h3>
+      <p>Répartition des tâches, bilan et difficultés</p>
+    </a>
+  </div>
+</div>
+
+<footer>Université Clermont Auvergne — Juin 2026 — SAE 204</footer>
+</body>
+</html>

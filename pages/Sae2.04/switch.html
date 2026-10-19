@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<style>
+  .language-toggle {
+    position: absolute;
+    top: 20px;
+    right: 48px;
+    background: rgba(212,160,23,0.2);
+    border: 1px solid rgba(212,160,23,0.4);
+    color: #d4a017;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .language-toggle:hover {
+    background: rgba(212,160,23,0.3);
+    border-color: rgba(212,160,23,0.6);
+  }
+</style>
+<title>Switch — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <button class="language-toggle" onclick="toggleLanguage()"><span id="lang-btn">EN</span></button>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner" data-fr="SAE 204 — BUT Réseaux &amp; Télécommunications" data-en="SAE 204 — Networks &amp; Telecommunications Degree">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html" data-fr="Accueil" data-en="Home">Accueil</a>
+  <a href="wifi.html" data-fr="1. Wifi" data-en="1. Wifi">1. Wifi</a>
+  <a href="switch.html" class="active" data-fr="2. Switch" data-en="2. Switch">2. Switch</a>
+  <a href="routeur.html" data-fr="3. Routeur" data-en="3. Router">3. Routeur</a>
+  <a href="dhcp.html" data-fr="4. DHCP" data-en="4. DHCP">4. DHCP</a>
+  <a href="ad_dns.html" data-fr="5. AD &amp; DNS" data-en="5. AD &amp; DNS">5. AD &amp; DNS</a>
+  <a href="gpo.html" data-fr="6. GPO &amp; RDP" data-en="6. GPO &amp; RDP">6. GPO &amp; RDP</a>
+  <a href="mail.html" data-fr="7. Mail" data-en="7. Mail">7. Mail</a>
+  <a href="asterisk.html" data-fr="8. Asterisk/PBX" data-en="8. Asterisk/PBX">8. Asterisk/PBX</a>
+  <a href="firewall.html" data-fr="9. Pare-feu" data-en="9. Firewall">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+<h1 data-fr="Configuration du Switch Cisco" data-en="Cisco Switch Configuration">Configuration du Switch Cisco</h1>
+
+<h2 data-fr="Présentation générale" data-en="General Overview">Présentation générale</h2>
+<p data-fr="Le switch Cisco (Catalyst 2960X) est le point central de connexion pour tous les appareils du réseau filaire. Il remplit trois rôles essentiels :" data-en="The Cisco switch (Catalyst 2960X) is the central connection point for all wired network devices. It fulfills three essential roles:">Le switch Cisco (Catalyst 2960X) est le point central de connexion pour tous les appareils du réseau filaire. Il remplit trois rôles essentiels :</p>
+<ul>
+  <li data-fr="<b>Segmentation réseau :</b> Création et gestion de 5 VLANs pour isoler les utilisateurs par rôle" data-en="<b>Network Segmentation:</b> Creation and management of 5 VLANs to isolate users by role"><b>Segmentation réseau :</b> Création et gestion de 5 VLANs pour isoler les utilisateurs par rôle</li>
+  <li data-fr="<b>Interconnexion :</b> Liaison avec le routeur via un port trunk pour la communication inter-VLAN" data-en="<b>Interconnection:</b> Link with router via trunk port for inter-VLAN communication"><b>Interconnexion :</b> Liaison avec le routeur via un port trunk pour la communication inter-VLAN</li>
+  <li data-fr="<b>Sécurité DHCP :</b> Protection contre les serveurs DHCP malveillants (DHCP Snooping)" data-en="<b>DHCP Security:</b> Protection against rogue DHCP servers (DHCP Snooping)"><b>Sécurité DHCP :</b> Protection contre les serveurs DHCP malveillants (DHCP Snooping)</li>
+</ul>
+
+<h2 data-fr="Architecture physique" data-en="Physical Architecture">Architecture physique</h2>
+<p data-fr="Le switch dispose de 24 ports GigabitEthernet :" data-en="The switch has 24 GigabitEthernet ports:">Le switch dispose de 24 ports GigabitEthernet :</p>
+<ul>
+  <li data-fr="<b>Ports 1-4 :</b> VLAN 10 (Employés) — 4 ports" data-en="<b>Ports 1-4:</b> VLAN 10 (Employees) — 4 ports"><b>Ports 1-4 :</b> VLAN 10 (Employés) — 4 ports</li>
+  <li data-fr="<b>Ports 5-9 :</b> VLAN 20 (Direction) — 5 ports" data-en="<b>Ports 5-9:</b> VLAN 20 (Management) — 5 ports"><b>Ports 5-9 :</b> VLAN 20 (Direction) — 5 ports</li>
+  <li data-fr="<b>Ports 10-14 :</b> VLAN 30 (Admin IT) — 5 ports" data-en="<b>Ports 10-14:</b> VLAN 30 (IT Admin) — 5 ports"><b>Ports 10-14 :</b> VLAN 30 (Admin IT) — 5 ports</li>
+  <li data-fr="<b>Ports 15-19 :</b> VLAN 40 (DMZ / Serveurs) — 5 ports" data-en="<b>Ports 15-19:</b> VLAN 40 (DMZ / Servers) — 5 ports"><b>Ports 15-19 :</b> VLAN 40 (DMZ / Serveurs) — 5 ports</li>
+  <li data-fr="<b>Ports 20-21 :</b> VLAN 60 (WiFi / Points d'accès) — 2 ports" data-en="<b>Ports 20-21:</b> VLAN 60 (WiFi / Access Points) — 2 ports"><b>Ports 20-21 :</b> VLAN 60 (WiFi / Points d'accès) — 2 ports</li>
+  <li data-fr="<b>Port 24 :</b> Trunk vers le routeur — 1 port" data-en="<b>Port 24:</b> Trunk to router — 1 port"><b>Port 24 :</b> Trunk vers le routeur — 1 port</li>
+  <li data-fr="<b>Ports 22-23 :</b> Libres" data-en="<b>Ports 22-23:</b> Free"><b>Ports 22-23 :</b> Libres</li>
+</ul>
+
+<h2 data-fr="Tableau récapitulatif des VLANs et ports" data-en="Summary Table of VLANs and Ports">Tableau récapitulatif des VLANs et ports</h2>
+<table>
+  <tr><th data-fr="VLAN" data-en="VLAN">VLAN</th><th data-fr="Nom" data-en="Name">Nom</th><th data-fr="Ports Switch" data-en="Switch Ports">Ports Switch</th><th data-fr="Nombre de ports" data-en="Number of Ports">Nombre de ports</th><th data-fr="Utilisation" data-en="Usage">Utilisation</th></tr>
+  <tr><td>10</td><td data-fr="Employés" data-en="Employees">Employés</td><td>1-4</td><td>4</td><td data-fr="Postes de travail" data-en="Workstations">Postes de travail</td></tr>
+  <tr><td>20</td><td data-fr="Direction" data-en="Management">Direction</td><td>5-9</td><td>5</td><td data-fr="Bureaux direction" data-en="Management offices">Bureaux direction</td></tr>
+  <tr><td>30</td><td data-fr="Admin IT" data-en="IT Admin">Admin IT</td><td>10-14</td><td>5</td><td data-fr="Équipe IT" data-en="IT Team">Équipe IT</td></tr>
+  <tr><td>40</td><td data-fr="DMZ" data-en="DMZ">DMZ</td><td>15-19</td><td>5</td><td data-fr="Serveurs (Web, DNS, Mail)" data-en="Servers (Web, DNS, Mail)">Serveurs (Web, DNS, Mail)</td></tr>
+  <tr><td>60</td><td data-fr="WiFi" data-en="WiFi">WiFi</td><td>20-21</td><td>2</td><td data-fr="Points d'accès sans fil" data-en="Wireless Access Points">Points d'accès sans fil</td></tr>
+</table>
+
+<hr/>
+
+<h1 data-fr="Configuration étape par étape" data-en="Step-by-Step Configuration">Configuration étape par étape</h1>
+
+<h2 data-fr="Étape 1 : Création des VLANs" data-en="Step 1: Creating VLANs">Étape 1 : Création des VLANs</h2>
+<p data-fr="Les VLANs (Virtual LANs) sont des domaines de broadcast logiques. Chaque VLAN est isolé et ne peut communiquer avec les autres que via le routeur :" data-en="VLANs (Virtual LANs) are logical broadcast domains. Each VLAN is isolated and can only communicate with others through the router:">Les VLANs (Virtual LANs) sont des domaines de broadcast logiques. Chaque VLAN est isolé et ne peut communiquer avec les autres que via le routeur :</p>
+
+<pre>enable
+configure terminal
+vlan 10
+ name Employes
+vlan 20
+ name Direction
+vlan 30
+ name Admin
+vlan 40
+ name DMZ
+vlan 60
+ name Wi-Fi
+exit</pre>
+
+<p data-fr="<b>Explication :</b> Cette configuration crée 5 VLANs identifiés par un numéro (10, 20, etc.) et un nom descriptif. Les numéros doivent correspondre aux configurations du routeur pour que le routage fonctionne correctement." data-en="<b>Explanation:</b> This configuration creates 5 VLANs identified by a number (10, 20, etc.) and a descriptive name. The numbers must match the router configuration for routing to work correctly."><b>Explication :</b> Cette configuration crée 5 VLANs identifiés par un numéro (10, 20, etc.) et un nom descriptif. Les numéros doivent correspondre aux configurations du routeur pour que le routage fonctionne correctement.</p>
+
+<hr/>
+
+<h2 data-fr="Étape 2 : Affectation des ports utilisateurs" data-en="Step 2: Assigning User Ports">Étape 2 : Affectation des ports utilisateurs</h2>
+<p data-fr="Chaque port utilisateur est configuré en mode <b>access</b> et assigné à un VLAN. Les utilisateurs connectés à ces ports reçoivent une adresse IP du VLAN correspondant :" data-en="Each user port is configured in <b>access</b> mode and assigned to a VLAN. Users connected to these ports receive an IP address from the corresponding VLAN:">Chaque port utilisateur est configuré en mode <b>access</b> et assigné à un VLAN. Les utilisateurs connectés à ces ports reçoivent une adresse IP du VLAN correspondant :</p>
+
+<h3 data-fr="Ports VLAN 10 (Employés)" data-en="VLAN 10 Ports (Employees)">Ports VLAN 10 (Employés)</h3>
+<pre>interface range GigabitEthernet1/0/1 - 4
+ switchport mode access
+ switchport access vlan 10
+exit</pre>
+
+<h3 data-fr="Ports VLAN 20 (Direction)" data-en="VLAN 20 Ports (Management)">Ports VLAN 20 (Direction)</h3>
+<pre>interface range GigabitEthernet1/0/5 - 9
+ switchport mode access
+ switchport access vlan 20
+exit</pre>
+
+<h3 data-fr="Ports VLAN 30 (Admin)" data-en="VLAN 30 Ports (IT Admin)">Ports VLAN 30 (Admin)</h3>
+<pre>interface range GigabitEthernet1/0/10 - 14
+ switchport mode access
+ switchport access vlan 30
+exit</pre>
+
+<h3 data-fr="Ports VLAN 40 (DMZ)" data-en="VLAN 40 Ports (DMZ)">Ports VLAN 40 (DMZ)</h3>
+<pre>interface range GigabitEthernet1/0/15 - 19
+ switchport mode access
+ switchport access vlan 40
+exit</pre>
+
+<h3 data-fr="Ports VLAN 60 (WiFi)" data-en="VLAN 60 Ports (WiFi)">Ports VLAN 60 (WiFi)</h3>
+<pre>interface range GigabitEthernet1/0/20 - 21
+ switchport mode access
+ switchport access vlan 60
+exit</pre>
+
+<p data-fr="<b>Explication :</b> La commande <b>switchport mode access</b> place le port en mode accès (non-trunk). Un utilisateur connecté à un port en mode accès reçoit immédiatement un tag VLAN. L'utilisation de <b>interface range</b> permet de configurer plusieurs ports en une seule commande." data-en="<b>Explanation:</b> The <b>switchport mode access</b> command puts the port in access mode (non-trunk). A user connected to an access port immediately receives a VLAN tag. Using <b>interface range</b> allows configuring multiple ports in a single command."><b>Explication :</b> La commande <b>switchport mode access</b> place le port en mode accès (non-trunk). Un utilisateur connecté à un port en mode accès reçoit immédiatement un tag VLAN. L'utilisation de <b>interface range</b> permet de configurer plusieurs ports en une seule commande.</p>
+
+<p data-fr="<b>Exemple :</b> Si vous branchez un PC sur le port 1, le switch ajoute automatiquement le tag VLAN 10 à tous les paquets provenant de ce port." data-en="<b>Example:</b> If you connect a PC to port 1, the switch automatically adds the VLAN 10 tag to all packets from that port."><b>Exemple :</b> Si vous branchez un PC sur le port 1, le switch ajoute automatiquement le tag VLAN 10 à tous les paquets provenant de ce port.</p>
+
+<hr/>
+
+<h2 data-fr="Étape 3 : Configuration du trunk vers le routeur" data-en="Step 3: Configuring the Trunk to the Router">Étape 3 : Configuration du trunk vers le routeur</h2>
+<p data-fr="Le trunk est un port spécial qui transporte le trafic de <b>tous les VLANs</b> simultanément. C'est la liaison qui permet au routeur de voir tous les VLANs :" data-en="The trunk is a special port that carries traffic for <b>all VLANs</b> simultaneously. It's the link that allows the router to see all VLANs:">Le trunk est un port spécial qui transporte le trafic de <b>tous les VLANs</b> simultanément. C'est la liaison qui permet au routeur de voir tous les VLANs :</p>
+
+<pre>interface GigabitEthernet1/0/24
+ description Trunk_vers_Routeur
+ switchport mode trunk
+exit</pre>
+
+<p data-fr="<b>Explication :</b> Contrairement aux ports access, le port trunk transporte des trames étiquetées (tagged). Chaque trame inclut le numéro VLAN dans son en-tête (8021.Q). Le routeur reçoit ces trames avec leur tag VLAN et peut les traiter via les sous-interfaces correspondantes." data-en="<b>Explanation:</b> Unlike access ports, the trunk port carries tagged frames. Each frame includes the VLAN number in its header (8021.Q). The router receives these frames with their VLAN tag and can process them via corresponding subinterfaces."><b>Explication :</b> Contrairement aux ports access, le port trunk transporte des trames étiquetées (tagged). Chaque trame inclut le numéro VLAN dans son en-tête (8021.Q). Le routeur reçoit ces trames avec leur tag VLAN et peut les traiter via les sous-interfaces correspondantes.</p>
+
+<p data-fr="<b>Différence clé :</b>" data-en="<b>Key Difference:</b>"><b>Différence clé :</b></p>
+<ul>
+  <li data-fr="<b>Port Access :</b> Un seul VLAN, pas de tag (mode natif)" data-en="<b>Access Port:</b> Single VLAN, no tag (native mode)"><b>Port Access :</b> Un seul VLAN, pas de tag (mode natif)</li>
+  <li data-fr="<b>Port Trunk :</b> Tous les VLANs, chaque trame a son tag VLAN" data-en="<b>Trunk Port:</b> All VLANs, each frame has its VLAN tag"><b>Port Trunk :</b> Tous les VLANs, chaque trame a son tag VLAN</li>
+</ul>
+
+<h3 data-fr="Sauvegarde de la configuration" data-en="Saving Configuration">Sauvegarde de la configuration</h3>
+<pre>end
+write memory</pre>
+
+<p data-fr="<b>Explication :</b> La commande <b>write memory</b> (ou <b>copy running-config startup-config</b>) sauvegarde la configuration en NVRAM du switch. Sans cette commande, la configuration serait perdue au redémarrage." data-en="<b>Explanation:</b> The <b>write memory</b> command (or <b>copy running-config startup-config</b>) saves the configuration to the switch's NVRAM. Without it, the configuration would be lost on reboot."><b>Explication :</b> La commande <b>write memory</b> (ou <b>copy running-config startup-config</b>) sauvegarde la configuration en NVRAM du switch. Sans cette commande, la configuration serait perdue au redémarrage.</p>
+
+<hr/>
+
+<h1 data-fr="Sécurité : DHCP Snooping" data-en="Security: DHCP Snooping">Sécurité : DHCP Snooping</h1>
+
+<h2 data-fr="Qu'est-ce que le DHCP Snooping ?" data-en="What is DHCP Snooping?">Qu'est-ce que le DHCP Snooping ?</h2>
+<p data-fr="Le DHCP Snooping est une protection contre les serveurs DHCP malveillants (rogue DHCP servers). Un attaquant pourrait brancher son propre serveur DHCP et distribuer de fausses adresses IP pour intercepter le trafic. Le DHCP Snooping crée une liste blanche de serveurs DHCP autorisés :" data-en="DHCP Snooping is protection against rogue DHCP servers. An attacker could connect their own DHCP server and distribute fake IP addresses to intercept traffic. DHCP Snooping creates a whitelist of authorized DHCP servers:">Le DHCP Snooping est une protection contre les serveurs DHCP malveillants (rogue DHCP servers). Un attaquant pourrait brancher son propre serveur DHCP et distribuer de fausses adresses IP pour intercepter le trafic. Le DHCP Snooping crée une liste blanche de serveurs DHCP autorisés :</p>
+
+<h2 data-fr="Étape 4 : Activation globale du DHCP Snooping" data-en="Step 4: Global DHCP Snooping Activation">Étape 4 : Activation globale du DHCP Snooping</h2>
+<pre>enable
+configure terminal
+ip dhcp snooping
+ip dhcp snooping vlan 10,20,30,40,60
+no ip dhcp snooping information option
+exit</pre>
+
+<p data-fr="<b>Explication détaillée :</b>" data-en="<b>Detailed Explanation:</b>"><b>Explication détaillée :</b></p>
+<ul>
+  <li data-fr="<b>ip dhcp snooping :</b> Active globalement la fonction" data-en="<b>ip dhcp snooping:</b> Globally enables the feature"><b>ip dhcp snooping :</b> Active globalement la fonction</li>
+  <li data-fr="<b>ip dhcp snooping vlan 10,20,30,40,60 :</b> Active le snooping pour ces VLANs spécifiques" data-en="<b>ip dhcp snooping vlan 10,20,30,40,60:</b> Enables snooping for these specific VLANs"><b>ip dhcp snooping vlan 10,20,30,40,60 :</b> Active le snooping pour ces VLANs spécifiques</li>
+  <li data-fr="<b>no ip dhcp snooping information option :</b> Désactive l'ajout automatique de l'option 82 aux paquets DHCP. Certains routeurs/serveurs la rejettent, ce qui bloquerait les clients DHCP" data-en="<b>no ip dhcp snooping information option:</b> Disables automatic addition of option 82 to DHCP packets. Some routers/servers reject it, blocking DHCP clients"><b>no ip dhcp snooping information option :</b> Désactive l'ajout automatique de l'option 82 aux paquets DHCP. Certains routeurs/serveurs la rejettent, ce qui bloquerait les clients DHCP</li>
+</ul>
+
+<h2 data-fr="Étape 5 : Configuration des ports de confiance (Trusted)" data-en="Step 5: Configuring Trusted Ports">Étape 5 : Configuration des ports de confiance (Trusted)</h2>
+<p data-fr="Les ports de confiance sont autorisés à recevoir des réponses DHCP. Seul le vrai serveur DHCP et le port trunk doivent être de confiance :" data-en="Trusted ports are allowed to receive DHCP responses. Only the real DHCP server and the trunk port should be trusted:">Les ports de confiance sont autorisés à recevoir des réponses DHCP. Seul le vrai serveur DHCP et le port trunk doivent être de confiance :</p>
+
+<pre>enable
+configure terminal
+! Serveur DHCP légitime en DMZ (port 15)
+interface GigabitEthernet1/0/15
+ description Serveur_DHCP_Legitime
+ ip dhcp snooping trust
+exit
+! Port Trunk vers le routeur
+interface GigabitEthernet1/0/24
+ description Trunk_vers_Routeur
+ ip dhcp snooping trust
+exit</pre>
+
+<p data-fr="<b>Explication :</b>" data-en="<b>Explanation:</b>"><b>Explication :</b></p>
+<ul>
+  <li data-fr="<b>Port 15 (Serveur DHCP) :</b> En tant que ports de confiance, il peut envoyer des réponses DHCP (DHCP ACK)" data-en="<b>Port 15 (DHCP Server):</b> As a trusted port, it can send DHCP responses (DHCP ACK)"><b>Port 15 (Serveur DHCP) :</b> En tant que ports de confiance, il peut envoyer des réponses DHCP (DHCP ACK)</li>
+  <li data-fr="<b>Port 24 (Trunk) :</b> De confiance car c'est la liaison vers le routeur qui relaye les requêtes DHCP" data-en="<b>Port 24 (Trunk):</b> Trusted because it's the link to the router that relays DHCP requests"><b>Port 24 (Trunk) :</b> De confiance car c'est la liaison vers le routeur qui relaye les requêtes DHCP</li>
+  <li data-fr="<b>Tous les autres ports :</b> Sont <b>non-trusted</b> par défaut. Ils peuvent envoyer des requêtes DHCP mais pas des réponses" data-en="<b>All other ports:</b> Are <b>non-trusted</b> by default. They can send DHCP requests but not responses"><b>Tous les autres ports :</b> Sont <b>non-trusted</b> par défaut. Ils peuvent envoyer des requêtes DHCP mais pas des réponses</li>
+</ul>
+
+<h2 data-fr="Comment fonctionne le DHCP Snooping ?" data-en="How Does DHCP Snooping Work?">Comment fonctionne le DHCP Snooping ?</h2>
+<p data-fr="Voici le flux de communication DHCP avec le snooping actif :" data-en="Here is the DHCP communication flow with snooping enabled:">Voici le flux de communication DHCP avec le snooping actif :</p>
+<ol>
+  <li data-fr="Un client DHCP (PC en VLAN 10) envoie une requête DHCP (DISCOVER)" data-en="A DHCP client (PC in VLAN 10) sends a DHCP request (DISCOVER)">Un client DHCP (PC en VLAN 10) envoie une requête DHCP (DISCOVER)</li>
+  <li data-fr="Le switch reçoit la requête sur le port 1 (non-trusted)" data-en="The switch receives the request on port 1 (non-trusted)">Le switch reçoit la requête sur le port 1 (non-trusted)</li>
+  <li data-fr="Comme le port est non-trusted, le switch laisse passer (il doit bien y avoir des requêtes !)" data-en="Since the port is non-trusted, the switch lets it through (there must be requests!)">Comme le port est non-trusted, le switch laisse passer (il doit bien y avoir des requêtes !)</li>
+  <li data-fr="La requête arrive au routeur (port 24 = trusted)" data-en="The request reaches the router (port 24 = trusted)">La requête arrive au routeur (port 24 = trusted)</li>
+  <li data-fr="Le routeur la relaye au serveur DHCP en DMZ" data-en="The router relays it to the DHCP server in DMZ">Le routeur la relaye au serveur DHCP en DMZ</li>
+  <li data-fr="Le serveur DHCP répond (DHCP OFFER) au routeur" data-en="The DHCP server responds (DHCP OFFER) to the router">Le serveur DHCP répond (DHCP OFFER) au routeur</li>
+  <li data-fr="Le routeur envoie la réponse vers le port 24 du switch (trusted)" data-en="The router sends the response to port 24 of the switch (trusted)">Le routeur envoie la réponse vers le port 24 du switch (trusted)</li>
+  <li data-fr="Le switch la relaie au port 1" data-en="The switch relays it to port 1">Le switch la relaie au port 1</li>
+  <li data-fr="Le client reçoit l'adresse IP" data-en="The client receives the IP address">Le client reçoit l'adresse IP</li>
+</ol>
+
+<p data-fr="<b>Cas d'attaque bloquée :</b> Si un attaquant branche un serveur DHCP malveillant sur le port 2 (non-trusted), ses réponses DHCP seront bloquées par le switch et n'atteindront jamais les clients." data-en="<b>Blocked Attack Case:</b> If an attacker connects a rogue DHCP server to port 2 (non-trusted), its DHCP responses will be blocked by the switch and never reach clients."><b>Cas d'attaque bloquée :</b> Si un attaquant branche un serveur DHCP malveillant sur le port 2 (non-trusted), ses réponses DHCP seront bloquées par le switch et n'atteindront jamais les clients.</p>
+
+<hr/>
+
+<h2 data-fr="Étape 6 : Configuration du rate limit DHCP" data-en="Step 6: Configuring DHCP Rate Limit">Étape 6 : Configuration du rate limit DHCP</h2>
+<p data-fr="Même avec DHCP Snooping, un attaquant peut envoyer massivement des requêtes DHCP pour surcharger le serveur (attaque par déni de service). Le rate limit limite le nombre de requêtes DHCP par port :" data-en="Even with DHCP Snooping, an attacker can flood DHCP requests to overload the server (denial of service attack). Rate limit restricts the number of DHCP requests per port:">Même avec DHCP Snooping, un attaquant peut envoyer massivement des requêtes DHCP pour surcharger le serveur (attaque par déni de service). Le rate limit limite le nombre de requêtes DHCP par port :</p>
+
+<pre>enable
+configure terminal
+! Ports VLAN 10 (Employés)
+interface range GigabitEthernet1/0/1 - 4
+ ip dhcp snooping limit rate 10
+exit
+! Ports VLAN 20 (Direction)
+interface range GigabitEthernet1/0/5 - 9
+ ip dhcp snooping limit rate 10
+exit
+! Ports VLAN 30 (Admin)
+interface range GigabitEthernet1/0/10 - 14
+ ip dhcp snooping limit rate 10
+exit
+! Ports VLAN 40 (DMZ, sauf port 15)
+interface range GigabitEthernet1/0/16 - 19
+ ip dhcp snooping limit rate 10
+exit
+! Ports VLAN 60 (WiFi - Points d'accès)
+interface range GigabitEthernet1/0/20 - 21
+ ip dhcp snooping limit rate 30
+exit</pre>
+
+<p data-fr="<b>Explication :</b>" data-en="<b>Explanation:</b>"><b>Explication :</b></p>
+<ul>
+  <li data-fr="<b>limit rate 10 :</b> Maximum 10 requêtes DHCP par seconde" data-en="<b>limit rate 10:</b> Maximum 10 DHCP requests per second"><b>limit rate 10 :</b> Maximum 10 requêtes DHCP par seconde</li>
+  <li data-fr="<b>limit rate 30 :</b> Sur les ports WiFi (20-21), la limite est plus élevée (30/sec) car de nombreux utilisateurs transitent par un seul port via les points d'accès" data-en="<b>limit rate 30:</b> On WiFi ports (20-21), the limit is higher (30/sec) because many users go through one port via access points"><b>limit rate 30 :</b> Sur les ports WiFi (20-21), la limite est plus élevée (30/sec) car de nombreux utilisateurs transitent par un seul port via les points d'accès</li>
+  <li data-fr="Si un port dépasse la limite, le switch le désactive automatiquement (errdisable) pour protéger le serveur DHCP" data-en="If a port exceeds the limit, the switch automatically disables it (errdisable) to protect the DHCP server">Si un port dépasse la limite, le switch le désactive automatiquement (errdisable) pour protéger le serveur DHCP</li>
+</ul>
+
+<h2 data-fr="Étape 7 : Récupération automatique après errdisable" data-en="Step 7: Automatic Recovery After Errdisable">Étape 7 : Récupération automatique après errdisable</h2>
+<p data-fr="Quand un port est désactivé, il doit être réactivé manuellement ou automatiquement. Cette configuration active la récupération automatique :" data-en="When a port is disabled, it must be reactivated manually or automatically. This configuration enables automatic recovery:">Quand un port est désactivé, il doit être réactivé manuellement ou automatiquement. Cette configuration active la récupération automatique :</p>
+
+<pre>configure terminal
+errdisable recovery cause dhcp-rate-limit
+errdisable recovery interval 300
+exit</pre>
+
+<p data-fr="<b>Explication :</b>" data-en="<b>Explanation:</b>"><b>Explication :</b></p>
+<ul>
+  <li data-fr="<b>errdisable recovery cause dhcp-rate-limit :</b> Autorise la récupération automatique des ports errdisable causés par un dépassement du rate limit DHCP" data-en="<b>errdisable recovery cause dhcp-rate-limit:</b> Allows automatic recovery of errdisable ports caused by DHCP rate limit exceeded"><b>errdisable recovery cause dhcp-rate-limit :</b> Autorise la récupération automatique des ports errdisable causés par un dépassement du rate limit DHCP</li>
+  <li data-fr="<b>errdisable recovery interval 300 :</b> Après 300 secondes (5 minutes), le switch réactive automatiquement le port" data-en="<b>errdisable recovery interval 300:</b> After 300 seconds (5 minutes), the switch automatically reactivates the port"><b>errdisable recovery interval 300 :</b> Après 300 secondes (5 minutes), le switch réactive automatiquement le port</li>
+  <li data-fr="<b>Sans cette configuration :</b> Le port resterait désactivé jusqu'à une intervention manuelle (no shutdown)" data-en="<b>Without this configuration:</b> The port would remain disabled until manual intervention (no shutdown)"><b>Sans cette configuration :</b> Le port resterait désactivé jusqu'à une intervention manuelle (no shutdown)</li>
+</ul>
+
+<hr/>
+
+<h1 data-fr="Concepts clés" data-en="Key Concepts">Concepts clés</h1>
+
+<h2 data-fr="VLAN (Virtual Local Area Network)" data-en="VLAN (Virtual Local Area Network)">VLAN (Virtual Local Area Network)</h2>
+<p data-fr="Un VLAN est un domaine de broadcast logique. Les VLANs offrent :" data-en="A VLAN is a logical broadcast domain. VLANs provide:">Un VLAN est un domaine de broadcast logique. Les VLANs offrent :</p>
+<ul>
+  <li data-fr="<b>Isolement :</b> Les machines d'un VLAN ne voient que le trafic broadcast de leur VLAN" data-en="<b>Isolation:</b> Machines in one VLAN only see broadcast traffic from their VLAN"><b>Isolement :</b> Les machines d'un VLAN ne voient que le trafic broadcast de leur VLAN</li>
+  <li data-fr="<b>Sécurité :</b> Empêche un utilisateur du VLAN 10 d'accéder directement aux serveurs du VLAN 40" data-en="<b>Security:</b> Prevents a VLAN 10 user from directly accessing VLAN 40 servers"><b>Sécurité :</b> Empêche un utilisateur du VLAN 10 d'accéder directement aux serveurs du VLAN 40</li>
+  <li data-fr="<b>Flexibilité :</b> Un VLAN peut s'étendre sur plusieurs switchs" data-en="<b>Flexibility:</b> A VLAN can span multiple switches"><b>Flexibilité :</b> Un VLAN peut s'étendre sur plusieurs switchs</li>
+</ul>
+
+<h2 data-fr="Tagging VLAN (802.1Q)" data-en="VLAN Tagging (802.1Q)">Tagging VLAN (802.1Q)</h2>
+<p data-fr="Le tagging VLAN ajoute un en-tête spécial aux trames Ethernet :" data-en="VLAN tagging adds a special header to Ethernet frames:">Le tagging VLAN ajoute un en-tête spécial aux trames Ethernet :</p>
+<ul>
+  <li data-fr="Trame non-tagged (mode access) : L'utilisateur envoie une trame normale, le switch ajoute le tag VLAN" data-en="Untagged frame (access mode): User sends a normal frame, switch adds VLAN tag">Trame non-tagged (mode access) : L'utilisateur envoie une trame normale, le switch ajoute le tag VLAN</li>
+  <li data-fr="Trame tagged (mode trunk) : La trame inclut déjà le numéro VLAN dans son en-tête" data-en="Tagged frame (trunk mode): Frame already includes VLAN number in its header">Trame tagged (mode trunk) : La trame inclut déjà le numéro VLAN dans son en-tête</li>
+</ul>
+
+<h2 data-fr="Access vs Trunk" data-en="Access vs Trunk">Access vs Trunk</h2>
+<table>
+  <tr><th data-fr="Aspect" data-en="Aspect">Aspect</th><th data-fr="Mode Access" data-en="Access Mode">Mode Access</th><th data-fr="Mode Trunk" data-en="Trunk Mode">Mode Trunk</th></tr>
+  <tr><td data-fr="Nombre de VLANs" data-en="Number of VLANs">Nombre de VLANs</td><td data-fr="1 seul VLAN" data-en="1 VLAN only">1 seul VLAN</td><td data-fr="Tous les VLANs" data-en="All VLANs">Tous les VLANs</td></tr>
+  <tr><td data-fr="Tagging" data-en="Tagging">Tagging</td><td data-fr="Le switch ajoute le tag" data-en="Switch adds tag">Le switch ajoute le tag</td><td data-fr="La trame arrive déjà taggée" data-en="Frame already tagged">La trame arrive déjà taggée</td></tr>
+  <tr><td data-fr="Utilisation" data-en="Usage">Utilisation</td><td data-fr="Ports utilisateurs" data-en="User ports">Ports utilisateurs</td><td data-fr="Ports inter-switchs, switch-routeur" data-en="Inter-switch, switch-router ports">Ports inter-switchs, switch-routeur</td></tr>
+  <tr><td data-fr="Configuration" data-en="Configuration">Configuration</td><td data-fr="switchport access vlan X" data-en="switchport access vlan X">switchport access vlan X</td><td data-fr="switchport mode trunk" data-en="switchport mode trunk">switchport mode trunk</td></tr>
+</table>
+
+<hr/>
+
+<h1 data-fr="Problèmes courants et solutions" data-en="Common Problems and Solutions">Problèmes courants et solutions</h1>
+
+<div class="problem">
+  <b data-fr="Problème 1 — Les utilisateurs ne peuvent pas communiquer entre VLANs" data-en="Problem 1 — Users cannot communicate between VLANs">Problème 1 — Les utilisateurs ne peuvent pas communiquer entre VLANs</b>
+  <p data-fr="<b>Cause :</b> C'est le comportement attendu ! Les VLANs sont isolés par défaut. Pour que deux VLANs se parlent, ils doivent passer par le routeur." data-en="<b>Cause:</b> This is expected behavior! VLANs are isolated by default. For two VLANs to communicate, they must go through the router."><b>Cause :</b> C'est le comportement attendu ! Les VLANs sont isolés par défaut. Pour que deux VLANs se parlent, ils doivent passer par le routeur.</p>
+  <p data-fr="<b>Vérification :</b> Un utilisateur du VLAN 10 peut pinger le routeur (192.168.136.1) mais pas un utilisateur du VLAN 20 directement. Il faut passer par le routeur." data-en="<b>Verification:</b> A VLAN 10 user can ping the router (192.168.136.1) but not a VLAN 20 user directly. Must go through the router."><b>Vérification :</b> Un utilisateur du VLAN 10 peut pinger le routeur (192.168.136.1) mais pas un utilisateur du VLAN 20 directement. Il faut passer par le routeur.</p>
+</div>
+
+<div class="problem">
+  <b data-fr="Problème 2 — Le routeur ne voit pas tous les VLANs" data-en="Problem 2 — Router cannot see all VLANs">Problème 2 — Le routeur ne voit pas tous les VLANs</b>
+  <p data-fr="<b>Cause :</b> Le port trunk n'est pas correctement configuré ou le routeur n'a pas les sous-interfaces correspondantes." data-en="<b>Cause:</b> Trunk port not properly configured or router lacks corresponding subinterfaces."><b>Cause :</b> Le port trunk n'est pas correctement configuré ou le routeur n'a pas les sous-interfaces correspondantes.</p>
+  <p data-fr="<b>Solution :</b> Vérifier que le port 24 du switch est en <b>switchport mode trunk</b>. Vérifier sur le routeur que les sous-interfaces GigaEth0/0/1.10, .20, .30, .40, .60 existent avec la commande <b>show ip interface brief</b>." data-en="<b>Solution:</b> Verify port 24 is in <b>switchport mode trunk</b>. Verify router subinterfaces GigaEth0/0/1.10, .20, .30, .40, .60 exist with <b>show ip interface brief</b>."><b>Solution :</b> Vérifier que le port 24 du switch est en <b>switchport mode trunk</b>. Vérifier sur le routeur que les sous-interfaces GigaEth0/0/1.10, .20, .30, .40, .60 existent avec la commande <b>show ip interface brief</b>.</p>
+</div>
+
+<div class="problem">
+  <b data-fr="Problème 3 — Les clients DHCP ne reçoivent pas d'adresse IP" data-en="Problem 3 — DHCP clients do not receive IP addresses">Problème 3 — Les clients DHCP ne reçoivent pas d'adresse IP</b>
+  <p data-fr="<b>Cause :</b> DHCP Snooping bloque les réponses du serveur, ou le port du serveur n'est pas de confiance." data-en="<b>Cause:</b> DHCP Snooping blocks server responses, or server port is not trusted."><b>Cause :</b> DHCP Snooping bloque les réponses du serveur, ou le port du serveur n'est pas de confiance.</p>
+  <p data-fr="<b>Solution :</b> Vérifier que le port 15 (serveur DHCP) a la commande <b>ip dhcp snooping trust</b>. Vérifier avec <b>show ip dhcp snooping binding</b> que le switch voit les liaisons DHCP." data-en="<b>Solution:</b> Verify port 15 has <b>ip dhcp snooping trust</b>. Check with <b>show ip dhcp snooping binding</b> that switch sees DHCP bindings."><b>Solution :</b> Vérifier que le port 15 (serveur DHCP) a la commande <b>ip dhcp snooping trust</b>. Vérifier avec <b>show ip dhcp snooping binding</b> que le switch voit les liaisons DHCP.</p>
+</div>
+
+<div class="problem">
+  <b data-fr="Problème 4 — Un port se désactive soudainement (erreur errdisable)" data-en="Problem 4 — A port suddenly disables (errdisable error)">Problème 4 — Un port se désactive soudainement (erreur errdisable)</b>
+  <p data-fr="<b>Cause :</b> Le port a dépassé la limite DHCP rate limit ou une autre condition d'erreur a été détectée." data-en="<b>Cause:</b> Port exceeded DHCP rate limit or another error condition detected."><b>Cause :</b> Le port a dépassé la limite DHCP rate limit ou une autre condition d'erreur a été détectée.</p>
+  <p data-fr="<b>Vérification :</b> Utiliser <b>show interface status err-disabled</b> pour voir les ports désactivés. Attendre 5 minutes (300 secondes) pour la réactivation automatique, ou réactiver manuellement avec <b>no shutdown</b>." data-en="<b>Verification:</b> Use <b>show interface status err-disabled</b> to see disabled ports. Wait 5 minutes (300 seconds) for automatic reactivation or manually enable with <b>no shutdown</b>."><b>Vérification :</b> Utiliser <b>show interface status err-disabled</b> pour voir les ports désactivés. Attendre 5 minutes (300 secondes) pour la réactivation automatique, ou réactiver manuellement avec <b>no shutdown</b>.</p>
+</div>
+
+<div class="problem">
+  <b data-fr="Problème 5 — Un serveur DHCP malveillant distribue des adresses" data-en="Problem 5 — A rogue DHCP server is distributing addresses">Problème 5 — Un serveur DHCP malveillant distribue des adresses</b>
+  <p data-fr="<b>Cause :</b> DHCP Snooping n'est pas activé ou le port du serveur malveillant est marqué comme trusted." data-en="<b>Cause:</b> DHCP Snooping not enabled or rogue server port marked as trusted."><b>Cause :</b> DHCP Snooping n'est pas activé ou le port du serveur malveillant est marqué comme trusted.</p>
+  <p data-fr="<b>Solution :</b> Vérifier que seuls les ports 15 (serveur légitime) et 24 (trunk) ont <b>ip dhcp snooping trust</b>. Les autres ports sont non-trusted par défaut et bloqueront les réponses DHCP." data-en="<b>Solution:</b> Verify only ports 15 (legitimate server) and 24 (trunk) have <b>ip dhcp snooping trust</b>. Other ports are non-trusted by default and will block DHCP responses."><b>Solution :</b> Vérifier que seuls les ports 15 (serveur légitime) et 24 (trunk) ont <b>ip dhcp snooping trust</b>. Les autres ports sont non-trusted par défaut et bloqueront les réponses DHCP.</p>
+</div>
+
+<hr/>
+
+<h1 data-fr="Commandes utiles pour le dépannage" data-en="Useful Troubleshooting Commands">Commandes utiles pour le dépannage</h1>
+
+<table>
+  <tr><th data-fr="Commande" data-en="Command">Commande</th><th data-fr="Utilité" data-en="Purpose">Utilité</th></tr>
+  <tr><td>show vlan brief</td><td data-fr="Affiche tous les VLANs et leurs ports" data-en="Display all VLANs and their ports">Affiche tous les VLANs et leurs ports</td></tr>
+  <tr><td>show interface GigabitEthernet1/0/1 switchport</td><td data-fr="Affiche le mode (access/trunk) et le VLAN d'un port" data-en="Display port mode (access/trunk) and VLAN">Affiche le mode (access/trunk) et le VLAN d'un port</td></tr>
+  <tr><td>show interface status</td><td data-fr="Affiche l'état de tous les ports (up/down, VLAN)" data-en="Display status of all ports (up/down, VLAN)">Affiche l'état de tous les ports (up/down, VLAN)</td></tr>
+  <tr><td>show interface status err-disabled</td><td data-fr="Affiche les ports désactivés (errdisable)" data-en="Display disabled ports (errdisable)">Affiche les ports désactivés (errdisable)</td></tr>
+  <tr><td>show ip dhcp snooping</td><td data-fr="Affiche l'état global du DHCP Snooping" data-en="Display global DHCP Snooping status">Affiche l'état global du DHCP Snooping</td></tr>
+  <tr><td>show ip dhcp snooping binding</td><td data-fr="Affiche les liaisons DHCP connues" data-en="Display known DHCP bindings">Affiche les liaisons DHCP connues</td></tr>
+  <tr><td>show interface GigabitEthernet1/0/15 | include trust</td><td data-fr="Vérifie si un port est trusted" data-en="Verify if a port is trusted">Vérifie si un port est trusted</td></tr>
+  <tr><td>debug ip dhcp snooping packet</td><td data-fr="Affiche les paquets DHCP en temps réel (debug mode)" data-en="Display DHCP packets in real-time (debug mode)">Affiche les paquets DHCP en temps réel (debug mode)</td></tr>
+  <tr><td>show running-config interface GigabitEthernet1/0/24</td><td data-fr="Affiche la configuration d'une interface spécifique" data-en="Display configuration of specific interface">Affiche la configuration d'une interface spécifique</td></tr>
+</table>
+
+<hr/>
+
+<h1 data-fr="Tableau de dépannage rapide" data-en="Quick Troubleshooting Table">Tableau de dépannage rapide</h1>
+
+<table>
+  <tr><th data-fr="Symptôme" data-en="Symptom">Symptôme</th><th data-fr="Cause probable" data-en="Likely Cause">Cause probable</th><th data-fr="Vérification rapide" data-en="Quick Check">Vérification rapide</th></tr>
+  <tr><td data-fr="PC ne reçoit pas d'IP" data-en="PC cannot get IP">PC ne reçoit pas d'IP</td><td data-fr="Pas de DHCP" data-en="No DHCP">Pas de DHCP</td><td>show ip dhcp snooping binding</td></tr>
+  <tr><td data-fr="Port en errdisable" data-en="Port in errdisable">Port en errdisable</td><td data-fr="Rate limit dépassé" data-en="Rate limit exceeded">Rate limit dépassé</td><td>show interface status err-disabled</td></tr>
+  <tr><td data-fr="VLANs isolés" data-en="VLANs isolated">VLANs isolés</td><td data-fr="Normal (par conception)" data-en="Normal (by design)">Normal (par conception)</td><td data-fr="Pinger le routeur au lieu du VLAN distant" data-en="Ping router instead of remote VLAN">Pinger le routeur au lieu du VLAN distant</td></tr>
+  <tr><td data-fr="Trunk non fonctionnel" data-en="Trunk not working">Trunk non fonctionnel</td><td data-fr="Mode access au lieu de trunk" data-en="Access mode instead of trunk">Mode access au lieu de trunk</td><td data-fr="show interface status (regarder le mode)" data-en="show interface status (check mode)">show interface status (regarder le mode)</td></tr>
+  <tr><td data-fr="DHCP Snooping bloque" data-en="DHCP Snooping blocks">DHCP Snooping bloque</td><td data-fr="Port serveur pas trusted" data-en="Server port not trusted">Port serveur pas trusted</td><td>show ip dhcp snooping</td></tr>
+</table>
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+
+<script>
+let isEnglish = false;
+
+function toggleLanguage() {
+  isEnglish = !isEnglish;
+  const button = document.getElementById('lang-btn');
+  button.textContent = isEnglish ? 'FR' : 'EN';
+  
+  const elements = document.querySelectorAll('[data-en][data-fr]');
+  elements.forEach(el => {
+    if (isEnglish) {
+      el.innerHTML = el.getAttribute('data-en');
+    } else {
+      el.innerHTML = el.getAttribute('data-fr');
+    }
+  });
+  
+  // Change language attribute on html
+  document.documentElement.lang = isEnglish ? 'en' : 'fr';
+}
+</script>
+
+</body>
+</html>

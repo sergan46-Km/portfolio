@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Routeur — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html" class="active">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+<h1>Configuration du Routeur Cisco</h1>
+
+<h2>Présentation générale</h2>
+<p>Le routeur Cisco (Catalyst 9200) est le cœur de l'infrastructure réseau. Il gère le routage entre les différents VLANs internes, la connexion à Internet via NAT, et l'accès sécurisé aux ressources critiques. Le routeur remplit quatre fonctions principales :</p>
+<ul>
+  <li><b>Routage inter-VLAN :</b> Communication entre les différents segments réseau (Employés, Direction, Admin, DMZ, WiFi)</li>
+  <li><b>Traduction d'adresses (NAT) :</b> Conversion des adresses privées en adresse publique pour Internet</li>
+  <li><b>Relais DHCP :</b> Redirection des requêtes DHCP vers le serveur Windows</li>
+  <li><b>Sécurité :</b> Application d'ACL pour restreindre l'accès du WiFi à Internet uniquement</li>
+</ul>
+
+<h2>Architecture des interfaces</h2>
+<p>Le routeur dispose de deux interfaces physiques :</p>
+<ul>
+  <li><b>GigabitEthernet0/0/0</b> : Interface externe connectée à Internet (via Stormshield)</li>
+  <li><b>GigabitEthernet0/0/1</b> : Interface interne avec 5 sous-interfaces (une par VLAN)</li>
+</ul>
+
+<h2>Tableau récapitulatif des VLANs</h2>
+<table>
+  <tr><th>VLAN</th><th>Nom</th><th>Sous-interface</th><th>IP Routeur</th><th>Masque</th><th>Plage DHCP</th></tr>
+  <tr><td>10</td><td>Employés</td><td>GigaEth0/0/1.10</td><td>192.168.136.1</td><td>/28</td><td>.10 à .14</td></tr>
+  <tr><td>20</td><td>Direction</td><td>GigaEth0/0/1.20</td><td>192.168.136.17</td><td>/28</td><td>.20 à .30</td></tr>
+  <tr><td>30</td><td>Admin IT</td><td>GigaEth0/0/1.30</td><td>192.168.136.33</td><td>/28</td><td>.36 à .46</td></tr>
+  <tr><td>40</td><td>DMZ</td><td>GigaEth0/0/1.40</td><td>192.168.136.49</td><td>/28</td><td>N/A (Serveurs)</td></tr>
+  <tr><td>60</td><td>WiFi Public</td><td>GigaEth0/0/1.60</td><td>192.168.136.65</td><td>/28</td><td>.68 à .78</td></tr>
+</table>
+
+<hr/>
+
+<h1>Configuration étape par étape</h1>
+
+<h2>Étape 1 : Configuration des interfaces réseau</h2>
+<p>Cette étape configure l'interface externe (Internet) et crée les sous-interfaces pour chaque VLAN :</p>
+
+<h3>Interface externe (GigabitEthernet0/0/0)</h3>
+<pre>enable
+configure terminal
+interface GigabitEthernet0/0/0
+ description Connexion_Externe
+ ip address 172.25.0.136 255.255.0.0
+ ip nat outside
+ no shutdown
+exit</pre>
+<p><b>Explication :</b> Cette interface reçoit l'adresse IP publique fournie par le fournisseur d'accès. Elle est marquée comme <b>ip nat outside</b> pour que le NAT sache que c'est l'interface sortante.</p>
+
+<h3>Interface interne – Configuration parente</h3>
+<pre>interface GigabitEthernet0/0/1
+ no shutdown
+exit</pre>
+<p><b>Explication :</b> Active l'interface parente qui accueillera les sous-interfaces VLAN.</p>
+
+<h3>Sous-interfaces VLAN (VLANs 10, 20, 30, 40, 60)</h3>
+<pre>interface GigabitEthernet0/0/1.10
+ encapsulation dot1Q 10
+ ip address 192.168.136.1 255.255.255.240
+ ip nat inside
+exit
+interface GigabitEthernet0/0/1.20
+ encapsulation dot1Q 20
+ ip address 192.168.136.17 255.255.255.240
+ ip nat inside
+exit
+interface GigabitEthernet0/0/1.30
+ encapsulation dot1Q 30
+ ip address 192.168.136.33 255.255.255.240
+ ip nat inside
+exit
+interface GigabitEthernet0/0/1.40
+ encapsulation dot1Q 40
+ ip address 192.168.136.49 255.255.255.240
+ ip nat inside
+exit
+interface GigabitEthernet0/0/1.60
+ encapsulation dot1Q 60
+ ip address 192.168.136.65 255.255.255.240
+ ip nat inside
+exit</pre>
+<p><b>Explication :</b> Chaque sous-interface correspond à un VLAN. La commande <b>encapsulation dot1Q</b> indique au routeur quel VLAN traiter sur cette sous-interface. L'adresse IP attribuée à chaque sous-interface devient la <b>passerelle par défaut</b> de ce VLAN. Toutes sont marquées <b>ip nat inside</b>.</p>
+
+<hr/>
+
+<h2>Étape 2 : Configuration NAT (Network Address Translation)</h2>
+<p>Le NAT permet à tous les utilisateurs du réseau interne d'accéder à Internet via une seule adresse publique :</p>
+
+<pre>access-list 1 permit 192.168.136.0 0.0.0.127
+ip nat inside source list 1 interface GigabitEthernet0/0/0 overload
+ip route 0.0.0.0 0.0.0.0 172.25.255.254
+end</pre>
+
+<p><b>Explication détaillée :</b></p>
+<ul>
+  <li><b>access-list 1 permit 192.168.136.0 0.0.0.127</b> : Crée une liste de contrôle d'accès qui autorise toutes les adresses du réseau interne (192.168.136.0 à 192.168.136.127)</li>
+  <li><b>ip nat inside source list 1 interface GigabitEthernet0/0/0 overload</b> : Traduit toutes les adresses correspondant à l'ACL 1 en l'adresse de l'interface externe (172.25.0.136). Le mot clé <b>overload</b> permet de partager une seule adresse publique pour plusieurs connexions (PAT)</li>
+  <li><b>ip route 0.0.0.0 0.0.0.0 172.25.255.254</b> : Route par défaut vers la passerelle du fournisseur d'accès</li>
+</ul>
+
+<hr/>
+
+<h2>Étape 3 : Configuration du relais DHCP (ip helper-address)</h2>
+<p>Les requêtes DHCP sont des broadcasts qui ne traversent pas les routeurs par défaut. Cette configuration les redirige vers le serveur Windows :</p>
+
+<pre>enable
+configure terminal
+interface GigabitEthernet0/0/1.10
+ ip helper-address 192.168.136.51
+exit
+interface GigabitEthernet0/0/1.20
+ ip helper-address 192.168.136.51
+exit
+interface GigabitEthernet0/0/1.30
+ ip helper-address 192.168.136.51
+exit
+interface GigabitEthernet0/0/1.60
+ ip helper-address 192.168.136.51
+exit
+end</pre>
+
+<p><b>Explication :</b> Le serveur DHCP (192.168.136.51) est situé en DMZ (VLAN 40), mais les clients des VLANs 10, 20, 30 et 60 doivent pouvoir obtenir une adresse IP. La commande <b>ip helper-address</b> traduit les broadcasts DHCP en unicast et les envoie au serveur. Notez que le VLAN 40 (DMZ) n'a pas besoin de relais car c'est un réseau de serveurs avec adresses fixes.</p>
+
+<hr/>
+
+<h2>Étape 4 : Mise à jour de la route vers Stormshield</h2>
+<p>Lorsqu'un pare-feu Stormshield est ajouté entre le routeur et Internet, la route par défaut doit être mise à jour :</p>
+
+<pre>enable
+configure terminal
+interface GigabitEthernet0/0/0
+ description Connexion_Vers_Stormshield_em1
+ ip address 192.168.254.2 255.255.255.252
+ ip nat outside
+ exit
+no ip route 0.0.0.0 0.0.0.0 172.25.255.254
+ip route 0.0.0.0 0.0.0.0 192.168.254.1
+end</pre>
+
+<p><b>Explication :</b></p>
+<ul>
+  <li>L'interface GigabitEthernet0/0/0 reçoit une nouvelle adresse IP (192.168.254.2/30) pour communiquer avec le pare-feu Stormshield (192.168.254.1)</li>
+  <li>La route par défaut pointe désormais vers Stormshield au lieu du fournisseur d'accès</li>
+  <li>Le NAT continue de fonctionner normalement</li>
+</ul>
+
+<hr/>
+
+<h2>Étape 5 : Sécurisation du VLAN 60 (WiFi)</h2>
+<p>Le VLAN 60 (WiFi Public) doit être restreint : les utilisateurs ne peuvent accéder qu'à Internet, pas aux ressources internes. Une ACL (Access Control List) étendue est appliquée :</p>
+
+<h3>Création de l'ACL</h3>
+<pre>enable
+configure terminal
+ip access-list extended ACL_ROUTAGE_WIFI
+ ! 1. Permettre le DHCP (relais vers le serveur)
+ permit udp 192.168.136.64 0.0.0.15 any eq bootps
+ permit udp 192.168.136.64 0.0.0.15 any eq bootpc
+ 
+ ! 2. Permettre l'accès au serveur DNS en DMZ
+ permit udp 192.168.136.64 0.0.0.15 host 192.168.136.51 eq domain
+ permit tcp 192.168.136.64 0.0.0.15 host 192.168.136.51 eq domain
+ 
+ ! 3. Permettre l'accès au Serveur Web en DMZ
+ permit tcp 192.168.136.64 0.0.0.15 host 192.168.136.52 eq www
+ permit tcp 192.168.136.64 0.0.0.15 host 192.168.136.52 eq 443
+ 
+ ! 4. BLOQUER tout le reste du réseau interne
+ deny ip 192.168.136.64 0.0.0.15 192.168.136.0 0.0.0.255
+ 
+ ! 5. AUTORISER l'accès à Internet
+ permit ip 192.168.136.64 0.0.0.15 any
+exit</pre>
+
+<p><b>Explication détaillée :</b></p>
+<ul>
+  <li><b>Les deux premières lignes</b> (bootps/bootpc) : Permettent aux clients WiFi d'obtenir une adresse IP via DHCP</li>
+  <li><b>Les lignes DNS (port 53)</b> : Permettent la résolution de noms de domaine</li>
+  <li><b>Les lignes Web (ports 80/443)</b> : Permettent l'accès à un serveur web hébergé en DMZ</li>
+  <li><b>Le <b>deny</b> global</b> : Bloque complètement l'accès au réseau interne (192.168.136.0/24)</li>
+  <li><b>Le <b>permit</b> final</b> : Autorise tout le reste (Internet)</li>
+</ul>
+
+<h3>Application de l'ACL sur l'interface WiFi</h3>
+<pre>interface GigabitEthernet0/0/1.60
+ ip access-group ACL_ROUTAGE_WIFI in
+exit
+end</pre>
+
+<p><b>Explication :</b> L'ACL est appliquée en entrée (in) sur l'interface VLAN 60. Tous les paquets entrant sur cette interface sont filtrés. Les règles sont évaluées de haut en bas : dès qu'une règle correspond (permit ou deny), le paquet est traité et l'évaluation s'arrête.</p>
+
+<hr/>
+
+<h1>Concepts clés</h1>
+
+<h2>Encapsulation dot1Q et tagging VLAN</h2>
+<p>Le routeur reçoit les trames VLAN étiquetées du switch. La commande <b>encapsulation dot1Q</b> indique au routeur d'accepter et de traiter les trames avec ce numéro VLAN. Chaque sous-interface ne traite que les trames avec le tag correspondant.</p>
+
+<h2>NAT (Network Address Translation)</h2>
+<p>Le NAT est essentiellement une table de traduction. Quand un PC interne (192.168.136.10) envoie un paquet à Internet :</p>
+<ol>
+  <li>Le routeur intercepte le paquet</li>
+  <li>Il remplace l'adresse source (192.168.136.10) par l'adresse externe (172.25.0.136)</li>
+  <li>Il enregistre cette traduction dans sa table</li>
+  <li>Quand la réponse revient (adressée à 172.25.0.136), il retrouve la traduction et renvoie le paquet au PC interne</li>
+</ol>
+
+<h2>ACL (Access Control List)</h2>
+<p>Une ACL est une liste ordonnée de règles de filtrage. Cisco évalue les règles de haut en bas :</p>
+<ul>
+  <li>Première correspondance = décision (permit/deny)</li>
+  <li>L'évaluation s'arrête (pas de règle suivante)</li>
+  <li>Un <b>deny implicite</b> à la fin refuse tout ce qui n'a pas été explicitement autorisé</li>
+</ul>
+
+<h2>VLAN 40 (DMZ) — Cas particulier</h2>
+<p>La DMZ ne reçoit pas de relais DHCP (<b>ip helper-address</b>) car c'est un réseau de serveurs. Les serveurs Windows, DNS, web reçoivent des adresses IP fixes, configurées manuellement ou via un système de gestion centralisé.</p>
+
+<hr/>
+
+<h1>Problèmes courants et solutions</h1>
+
+<div class="problem">
+  <b>Problème 1 — Les utilisateurs WiFi peuvent accéder au réseau interne</b>
+  <p><b>Cause :</b> L'ACL n'est pas appliquée ou est mal configurée.</p>
+  <p><b>Solution :</b> Vérifier que <b>ip access-group ACL_ROUTAGE_WIFI in</b> est appliquée sur l'interface GigabitEthernet0/0/1.60. Afficher l'ACL avec <b>show access-list ACL_ROUTAGE_WIFI</b> et compter les correspondances.</p>
+</div>
+
+<div class="problem">
+  <b>Problème 2 — Les clients WiFi n'obtiennent pas d'adresse IP</b>
+  <p><b>Cause :</b> Le relais DHCP n'est pas configuré sur la sous-interface VLAN 60 ou le serveur DHCP n'écoute pas les requêtes du VLAN 60.</p>
+  <p><b>Solution :</b> Ajouter la commande <b>ip helper-address 192.168.136.51</b> sur l'interface GigabitEthernet0/0/1.60. Vérifier sur le serveur Windows que l'étendue DHCP pour le VLAN 60 est activée.</p>
+</div>
+
+<div class="problem">
+  <b>Problème 3 — Les utilisateurs internes n'accèdent plus à Internet</b>
+  <p><b>Cause :</b> La route par défaut est mal configurée ou pointée vers la mauvaise passerelle.</p>
+  <p><b>Solution :</b> Vérifier la route avec <b>show ip route</b>. L'entrée 0.0.0.0/0 doit pointer vers 172.25.255.254 (sans Stormshield) ou 192.168.254.1 (avec Stormshield).</p>
+</div>
+
+<div class="problem">
+  <b>Problème 4 — La NAT ne traduit rien</b>
+  <p><b>Cause :</b> L'ACL de NAT ne correspond pas au trafic, ou l'interface externe n'est pas marquée <b>ip nat outside</b>.</p>
+  <p><b>Solution :</b> Vérifier que l'interface GigabitEthernet0/0/0 a <b>ip nat outside</b> et que toutes les sous-interfaces VLAN ont <b>ip nat inside</b>. Afficher les statistiques NAT avec <b>show ip nat statistics</b>.</p>
+</div>
+
+<hr/>
+
+<h1>Commandes utiles pour le dépannage</h1>
+
+<table>
+  <tr><th>Commande</th><th>Utilité</th></tr>
+  <tr><td>show ip interface brief</td><td>Affiche l'état de toutes les interfaces et leurs adresses IP</td></tr>
+  <tr><td>show ip nat statistics</td><td>Statistiques du NAT (adresses traduites, pools, etc.)</td></tr>
+  <tr><td>show ip nat translations</td><td>Table actuelle des traductions NAT</td></tr>
+  <tr><td>show access-lists</td><td>Liste tous les ACLs configurées et leurs règles</td></tr>
+  <tr><td>show access-list ACL_ROUTAGE_WIFI</td><td>Affiche les détails et les compteurs d'une ACL spécifique</td></tr>
+  <tr><td>show ip route</td><td>Affiche la table de routage (routes statiques et dynamiques)</td></tr>
+  <tr><td>ping 192.168.136.51</td><td>Teste la connectivité vers une adresse IP</td></tr>
+  <tr><td>traceroute 8.8.8.8</td><td>Trace le chemin des paquets vers une destination</td></tr>
+</table>
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+</body>
+</html>

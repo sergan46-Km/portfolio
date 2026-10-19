@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Gestion de Projet — Les 3 Brasseurs</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html" class="active">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+  <h1>Gestion de Projet</h1>
+
+  <div class="section">
+    <h2>Présentation de l'équipe</h2>
+    <p>Le projet SAE 204 a été réalisé par une équipe de 4 étudiants en BUT Réseaux & Télécommunications à l'Université Clermont Auvergne. Chaque membre a pris en charge un domaine spécifique de l'infrastructure.</p>
+    <table>
+      <tr><th>Membre</th><th>Rôle principal</th></tr>
+      <tr><td>Mohamed Abou Firnas</td><td>Développement web & Base de données</td></tr>
+      <tr><td>Bassaiev Malik</td><td>Systèmes Linux, Syslog & Sécurité applicative</td></tr>
+      <tr><td>Duverger Elliot</td><td>Infrastructure réseau physique & Équipements</td></tr>
+      <tr><td>Ali Kassim</td><td>Active Directory, GPO & Services Windows</td></tr>
+    </table>
+  </div>
+
+  <!-- ABOU -->
+  <div class="section">
+    <h2>Mohamed Abou Firnas — Développement Web & Base de données</h2>
+    <ul>
+      <li>Développement du site web de la brasserie</li>
+      <li>Conception et gestion de la base de données MySQL</li>
+    </ul>
+  </div>
+
+  <!-- MALIK -->
+  <div class="section">
+    <h2>Bassaiev Malik — Systèmes Linux, Syslog & Sécurité</h2>
+    <ul>
+      <li>Installation des systèmes d'exploitation (Debian Linux et Windows Server)</li>
+      <li>Intégration du serveur mail et de Syslog dans le site web</li>
+      <li>Configuration de Syslog (scripts PowerShell et Bash)</li>
+      <li>Installation et configuration du serveur web (Apache2, MySQL)</li>
+      <li>Réparation d'Asterisk (serveur de téléphonie)</li>
+      <li>Rédaction du dossier technique</li>
+      <li>Passage du site web en HTTPS (certificat SSL)</li>
+      <li>Sauvegarde automatisée de la base de données SQL</li>
+      <li>Masquage du token du serveur Apache (sécurité)</li>
+    </ul>
+  </div>
+
+  <!-- ELLIOT -->
+  <div class="section">
+    <h2>Duverger Elliot — Infrastructure réseau physique</h2>
+    <ul>
+      <li>Configuration du routeur (VLANs, NAT, PAT, routage inter-VLAN)</li>
+      <li>Configuration du switch (VLANs, trunk, ports access)</li>
+      <li>Configuration du pare-feu physique (règles de filtrage, DMZ)</li>
+      <li>Configuration du point d'accès Wifi employés (brasserie-employe)</li>
+      <li>Câblage et gestion de baie</li>
+      <li>Réparation après erreurs de configuration</li>
+      <li>Configuration du DHCP (étendues, options)</li>
+      <li>Configuration de la téléphonie (Asterisk)</li>
+      <li>Serveur web (participation)</li>
+      <li>Rédaction du compte rendu</li>
+    </ul>
+  </div>
+
+  <!-- KASSIM -->
+  <div class="section">
+    <h2>Ali Kassim — Active Directory, GPO & Services Windows</h2>
+    <ul>
+      <li>Configuration du point d'accès Wifi client (brasserie-client, VLAN 60)</li>
+      <li>Configuration du serveur DNS (zone brasserie.local, forwarder)</li>
+      <li>Installation et configuration de l'Active Directory</li>
+      <li>Création du domaine brasserie.local</li>
+      <li>Création des Unités Organisationnelles (Employes, Direction, Admin)</li>
+      <li>Création et gestion des groupes de sécurité (GRP_Admin, GRP_Direction, GRP_Employes)</li>
+      <li>Gestion des permissions utilisateurs</li>
+      <li>Configuration des GPO (securite-Globale, Audit-Logs, Restrictions-Employes, Restrictions-Directions, Fonds d'écran)</li>
+      <li>Configuration de l'accès à distance RDP (admin sur serveur Windows)</li>
+      <li>Configuration du pare-feu Windows Defender (règles RDP et gestion à distance)</li>
+      <li>Configuration des logs Windows (eventvwr, ID 4625, 4740)</li>
+      <li>Participation à la configuration de la téléphonie (Asterisk, PJSIP)</li>
+      <li>Rédaction du compte rendu web (pages HTML/CSS)</li>
+    </ul>
+  </div>
+
+  <!-- TACHES COMMUNES -->
+  <div class="section">
+    <h2>Tâches réalisées en groupe</h2>
+    <ul>
+      <li>Tests de connectivité inter-VLAN</li>
+      <li>Validation des services réseau</li>
+      <li>Tests de sécurité (DHCP Snooping, attaques)</li>
+      <li>Corrections des erreurs et dépannage</li>
+      <li>Démonstrations finales</li>
+      <li>Préparation de la soutenance</li>
+    </ul>
+  </div>
+
+  <!-- BILAN -->
+  <div class="section">
+    <h2>Bilan du projet</h2>
+    <p>Le projet s'est bien déroulé dans l'ensemble. La répartition des tâches a permis à chaque membre de se spécialiser dans un domaine tout en ayant une vision globale de l'infrastructure.</p>
+
+    <h3>Points positifs</h3>
+    <ul>
+      <li>Bonne communication entre les membres de l'équipe</li>
+      <li>Infrastructure fonctionnelle et conforme aux objectifs</li>
+      <li>Résolution efficace des problèmes rencontrés</li>
+      <li>Documentation complète réalisée tout au long du projet</li>
+    </ul>
+
+    <h3>Difficultés rencontrées</h3>
+    <ul>
+      <li>Asterisk non disponible dans les dépôts Debian 13 → compilation depuis les sources</li>
+      <li>Dovecot 2.4 avec nouvelle syntaxe différente des versions précédentes</li>
+      <li>Fond d'écran GPO : chemin UNC avec IP ne fonctionnait pas, il fallait utiliser le nom NetBIOS</li>
+      <li>Coordination entre les deux TD (groupe A et groupe B) pour les décisions d'architecture</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>Université Clermont Auvergne — Juin 2026 — SAE 204</footer>
+</body>
+</html>

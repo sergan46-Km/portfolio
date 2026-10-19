@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Wifi D-Link — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html" class="active">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+
+<h1>Point d'accès Wifi — D-Link DAP-2020 (brasserie-client)</h1>
+
+<h2>Présentation</h2>
+<p>Le premier point d'accès Wifi D-Link DAP-2020 permet aux clients de la brasserie de se connecter au réseau sans fil via le SSID <b>brasserie-client</b>. L'AP est connecté au switch sur le port 20 assigné au VLAN 60 (Wifi).</p>
+
+<h2>Configuration réseau de l'AP</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Adresse IP de gestion</td><td>192.168.136.68</td></tr>
+  <tr><td>Masque de sous-réseau</td><td>255.255.255.240</td></tr>
+  <tr><td>Passerelle par défaut</td><td>192.168.136.65</td></tr>
+  <tr><td>DNS primaire</td><td>192.168.117.181</td></tr>
+  <tr><td>VLAN</td><td>60 — Wifi</td></tr>
+</table>
+
+<h2>Configuration DHCP de l'AP</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Plage DHCP</td><td>192.168.136.69 à 192.168.136.78</td></tr>
+  <tr><td>Passerelle distribuée</td><td>192.168.136.65</td></tr>
+  <tr><td>DNS distribué</td><td>192.168.117.181</td></tr>
+  <tr><td>Durée du bail</td><td>1 semaine</td></tr>
+</table>
+
+<h2>Configuration Wifi</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>SSID</td><td>brasserie-client</td></tr>
+  <tr><td>Mot de passe</td><td>brasserie2026</td></tr>
+  <tr><td>Sécurité</td><td>WPA2-PSK</td></tr>
+</table>
+
+<p><b>Restrictions d'accès :</b> Les utilisateurs connectés au réseau <b>brasserie-client</b> disposent uniquement d'un accès à Internet et du droit de pinger l'équipement DHCP situé dans la DMZ. Tout autre accès ou ping vers le reste des équipements du réseau est strictement refusé.</p>
+
+<h2>Capture d'écran — Interface de configuration de l'AP</h2>
+<img src="image/capture_Ap.png" width="700" alt="Configuration AP clients D-Link">
+
+<h2>Problèmes rencontrés</h2>
+<p><b>Problème — Le DAP-2020 ne supporte pas les SSID multiples avec VLAN</b></p>
+<p>Cause : Le DAP-2020 est un AP basique qui ne gère qu'un seul SSID.</p>
+<p>Solution : Utilisation de deux Points d'Accès (AP) pour créer deux réseaux WiFi distincts, l'un dédié aux clients et l'autre aux employés.</p>
+<p>Le problème de SSID multiple a été définitivement résolu grâce à l'implantation d'un second point d'accès dédié au réseau employés.</p>
+
+<h1>Point d'accès Wifi — D-Link DAP-2020 (brasserie-employe)</h1>
+
+<h2>Présentation</h2>
+<p>Le second point d'accès Wifi D-Link DAP-2020 est réservé exclusivement aux employés de la brasserie via le SSID <b>brasserie-employe</b>. L'AP est connecté au switch sur un port assigné au VLAN 10 (Employés). Les employés connectés à ce réseau ne subissent aucune restriction d'accès sur le réseau interne.</p>
+
+<h2>Configuration réseau de l'AP</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Adresse IP de gestion</td><td>192.168.136.2</td></tr>
+  <tr><td>Masque de sous-réseau</td><td>255.255.255.240</td></tr>
+  <tr><td>Passerelle par défaut</td><td>192.168.136.1</td></tr>
+  <tr><td>DNS primaire</td><td>192.168.136.51</td></tr>
+  <tr><td>VLAN</td><td>10 — Employés</td></tr>
+</table>
+
+<h2>Configuration DHCP de l'AP</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>Serveur DHCP intégré</td><td>Désactivé</td></tr>
+  <tr><td>Plage distribuée</td><td>192.168.136.10 à 192.168.136.14 (serveur DHCP Windows)</td></tr>
+  <tr><td>Passerelle distribuée</td><td>192.168.136.1</td></tr>
+  <tr><td>DNS distribué</td><td>192.168.136.51</td></tr>
+  <tr><td>Durée du bail</td><td>1 semaine</td></tr>
+</table>
+
+<h2>Configuration Wifi</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>Valeur</th></tr>
+  <tr><td>SSID</td><td>brasserie-employe</td></tr>
+  <tr><td>Mot de passe</td><td>brasserie2026</td></tr>
+  <tr><td>Sécurité</td><td>WPA2-PSK</td></tr>
+</table>
+
+<p><b>Restrictions d'accès :</b> Aucune — ce réseau est réservé aux employés et leur accorde un accès complet à l'ensemble du réseau interne.</p>
+
+<h2>Capture d'écran — Interface de configuration de l'AP</h2>
+<img src="image/capture_Ap2.png" width="700" alt="Configuration AP employés D-Link">
+
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+</body>
+</html>

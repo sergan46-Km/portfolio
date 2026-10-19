@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CV — Ali Kassim">
+    <meta name="author" content="Ali Kassim">
+    <title>CV — Ali Kassim</title>
+    <link rel="stylesheet" href="../theme/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body data-page="cv">
+
+    <header id="site-header"></header>
+
+    <main class="container page-section">
+        <div class="cv-wrap reveal">
+            <style>
+            @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+            *{margin:0;padding:0;box-sizing:border-box}
+
+            /* Variables nécessaires au template CV (scopées au wrapper) */
+            .cv-wrap{
+              --color-background-primary:#f8fafc;
+              --color-background-secondary:#ffffff;
+              --color-border-tertiary:rgba(15,23,42,.12);
+              --color-border-secondary:rgba(15,23,42,.16);
+              --color-text-primary:#0f172a;
+              --color-text-secondary:#475569;
+              --border-radius-lg:16px;
+            }
+
+            .cv{display:grid;grid-template-columns:255px 1fr;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+            .sidebar{background:#1a2332;color:#e8edf4;padding:26px 20px;display:flex;flex-direction:column;gap:20px}
+            .avatar{width:76px;height:76px;border-radius:50%;background:#1a4a7a;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:24px;color:#7ec8ff;margin:0 auto 6px;overflow:hidden}
+            .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+            .name{text-align:center}
+            .name h1{font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;color:#fff;line-height:1.2}
+            .name p{font-size:11px;color:#8fa3bc;margin-top:4px;line-height:1.4}
+            .s-section h3{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#8fa3bc;margin-bottom:9px;padding-bottom:5px;border-bottom:0.5px solid #2d3f55}
+            .ci{display:flex;align-items:flex-start;gap:7px;margin-bottom:7px;font-size:12px;color:#c8d6e5}
+            .ci i{font-size:13px;color:#4a9eff;margin-top:1px;flex-shrink:0}
+            .li{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+            .ln{font-size:12px;color:#c8d6e5}
+            .ll{font-size:10px;color:#8fa3bc;background:#2d3f55;padding:2px 6px;border-radius:3px}
+            .qi{display:flex;align-items:center;gap:6px;font-size:12px;color:#c8d6e5;margin-bottom:4px}
+            .qi i{font-size:12px;color:#4a9eff}
+            .main{padding:24px 26px;display:flex;flex-direction:column;gap:20px}
+            .ms h2{font-family:'DM Serif Display',serif;font-size:16px;font-weight:400;color:var(--color-text-primary);margin-bottom:12px;padding-bottom:7px;border-bottom:1.5px solid #1a7abf;display:flex;align-items:center;gap:7px}
+            .ms h2 i{font-size:15px;color:#1a7abf}
+            .about-text{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+            .about-tag{font-family:'DM Serif Display',serif;font-style:italic;font-size:14.5px;color:#1a7abf;line-height:1.4;margin-bottom:10px;padding-left:12px;border-left:3px solid #1a7abf}
+            .about-highlights{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+            .edu-item{display:grid;grid-template-columns:88px 1fr;gap:10px;margin-bottom:11px}
+            .edu-date{font-size:11px;color:#1a7abf;font-weight:500;padding-top:2px;line-height:1.4}
+            .edu-body h4{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+            .edu-body p{font-size:12px;color:var(--color-text-secondary);margin-top:2px;line-height:1.5}
+            .badge{display:inline-block;background:#e6f3ff;color:#1a5a9a;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:500;margin-top:4px}
+            .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+            .sk{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px 12px}
+            .sk-title{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+            .sk-title i{font-size:13px;color:#1a7abf}
+            .pills{display:flex;flex-wrap:wrap;gap:3px}
+            .pill{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+            .pill.s{background:#e6f3ff;border-color:#85b7eb;color:#1a5a9a}
+            .links{display:flex;gap:8px;flex-wrap:wrap}
+            .lb{display:flex;align-items:center;gap:6px;padding:5px 11px;border:0.5px solid var(--color-border-secondary);border-radius:6px;font-size:12px;color:var(--color-text-primary);text-decoration:none;background:var(--color-background-secondary)}
+            .lb i{font-size:13px;color:#1a7abf}
+
+            /* ===== Bouton de téléchargement (écran uniquement) ===== */
+            .cv-actions{display:flex;justify-content:flex-end;margin-top:48px;margin-bottom:16px}
+            .btn-download{
+              display:inline-flex;align-items:center;gap:8px;
+              padding:10px 20px;
+              font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+              color:#ffffff;background:#1a7abf;
+              border:none;border-radius:8px;cursor:pointer;text-decoration:none;
+              transition:background .2s ease;
+            }
+            .btn-download:hover{background:#15629a;color:#ffffff}
+            .btn-download:focus-visible{outline:3px solid #7ec8ff;outline-offset:2px}
+            .btn-download i{font-size:17px}
+            </style>
+
+            <div class="cv-actions">
+                <a class="btn-download" href="C:\Users\alika\Documents\portfolio\cv\ALi_kassim_cv.pdf" download="CV_Ali_Kassim.pdf">
+                    <i class="ti ti-download" aria-hidden="true"></i>Télécharger mon CV
+                </a>
+            </div>
+
+            <div class="cv">
+                <aside class="sidebar">
+                  <div>
+                    <div class="avatar">
+                      <img src="../theme/gfx/photo_ali.jpg" alt="Photo d'Ali Kassim" loading="lazy" width="76" height="76">
+                    </div>
+                    <div class="name">
+                      <h1>Ali Kassim</h1>
+                      <p>Étudiant en 1ère année de BTS CIEL<br>Lycée La Fayette, Clermont-Ferrand</p>
+                    </div>
+                  </div>
+                  <div class="s-section">
+                    <h3>Contact</h3>
+                    <div class="ci"><i class="ti ti-phone" aria-hidden="true"></i><span>06 72 44 82 39</span></div>
+                    <div class="ci"><i class="ti ti-mail" aria-hidden="true"></i><span>alikassim227@gmail.com</span></div>
+                    <div class="ci"><i class="ti ti-map-pin" aria-hidden="true"></i><span>69 boulevard Côte Blatin<br>63000 Clermont-Ferrand</span></div>
+                    <div class="ci"><i class="ti ti-user" aria-hidden="true"></i><span>19 ans</span></div>
+                  </div>
+                  <div class="s-section">
+                    <h3>Langues</h3>
+                    <div class="li"><span class="ln">Shimaoré</span><span class="ll">Maternelle</span></div>
+                    <div class="li"><span class="ln">Français</span><span class="ll">Courant</span></div>
+                    <div class="li"><span class="ln">Anglais</span><span class="ll">A2</span></div>
+                  </div>
+                  <div class="s-section">
+                    <h3>Qualités</h3>
+                    <div class="qi"><i class="ti ti-check" aria-hidden="true"></i>Rigueur</div>
+                    <div class="qi"><i class="ti ti-check" aria-hidden="true"></i>Patience</div>
+                    <div class="qi"><i class="ti ti-check" aria-hidden="true"></i>Adaptabilité</div>
+                    <div class="qi"><i class="ti ti-check" aria-hidden="true"></i>Gestion du stress</div>
+                    <div class="qi"><i class="ti ti-check" aria-hidden="true"></i>Travail en équipe</div>
+                  </div>
+                  <div class="s-section">
+                    <h3>Divers</h3>
+                    <div class="qi"><i class="ti ti-barbell" aria-hidden="true"></i>Sport : callisthénie (débutant), musculation</div>
+                    <div class="qi"><i class="ti ti-device-gamepad-2" aria-hidden="true"></i>Développeur Roblox (débutant)</div>
+                  </div>
+                </aside>
+
+                <main class="main">
+                  <div class="ms">
+                    <h2><i class="ti ti-user" aria-hidden="true"></i>Profil</h2>
+                    <p class="about-text">Étudiant en <strong>BTS CIEL</strong> (option Informatique et réseaux) à Clermont-Ferrand. Curieux et rigoureux, je développe des compétences en réseaux, systèmes, systèmes embarqués et développement web, avec un intérêt particulier pour la cybersécurité.</p>
+                    <div class="about-highlights">
+                      <span class="pill s">Réseaux</span><span class="pill s">Cybersécurité</span><span class="pill s">Systèmes</span><span class="pill s">Développement</span>
+                    </div>
+                  </div>
+
+                  <div class="ms">
+                    <h2><i class="ti ti-school" aria-hidden="true"></i>Formation</h2>
+                    <div class="edu-item">
+                      <div class="edu-date">2026 – 2027<br><span style="font-size:10px;color:#8fa3bc">En cours</span></div>
+                      <div class="edu-body">
+                        <h4>BTS CIEL — Cybersécurité, Informatique et réseaux, Électronique</h4>
+                        <p>Option A : Informatique et réseaux<br>Lycée La Fayette — Clermont-Ferrand (63)</p>
+                      </div>
+                    </div>
+                    <div class="edu-item">
+                      <div class="edu-date">2025 – 2026</div>
+                      <div class="edu-body">
+                        <h4>BUT Réseaux et Télécommunications</h4>
+                        <p>IUT de Clermont-Ferrand — 63000</p>
+                      </div>
+                    </div>
+                    <div class="edu-item">
+                      <div class="edu-date">2024 – 2025</div>
+                      <div class="edu-body">
+                        <h4>Baccalauréat Général</h4>
+                        <p>Lycée du Nord — Mtsangadoua, Mayotte (97630)<br>Spécialités : Mathématiques · Numérique &amp; Sciences Informatiques (NSI)</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ms">
+                    <h2><i class="ti ti-tools" aria-hidden="true"></i>Compétences techniques</h2>
+                    <div class="skills-grid">
+                      <div class="sk">
+                        <div class="sk-title"><i class="ti ti-network" aria-hidden="true"></i>Réseaux</div>
+                        <div class="pills">
+                          <span class="pill s">TCP/IP</span><span class="pill s">VLAN</span><span class="pill s">Wi-Fi</span><span class="pill s">SSH</span><span class="pill s">DHCP</span><span class="pill s">STP</span><span class="pill s">ACL</span><span class="pill">Routeur</span><span class="pill">Switch</span><span class="pill">Scapy</span><span class="pill">DNS</span><span class="pill">NAT</span><span class="pill">OSPF</span><span class="pill">Spanning Tree</span>
+                        </div>
+                      </div>
+                      <div class="sk">
+                        <div class="sk-title"><i class="ti ti-terminal-2" aria-hidden="true"></i>Systèmes</div>
+                        <div class="pills">
+                          <span class="pill s">Linux</span><span class="pill s">Bash</span><span class="pill s">Active Directory</span><span class="pill s">Virtualisation (VM)</span><span class="pill">Script Shell</span><span class="pill">Serveur Linux</span><span class="pill">Serveur Windows</span><span class="pill">VMware / VirtualBox</span>
+                        </div>
+                      </div>
+                      <div class="sk">
+                        <div class="sk-title"><i class="ti ti-phone-call" aria-hidden="true"></i>Téléphonie IP</div>
+                        <div class="pills">
+                          <span class="pill s">VoIP</span><span class="pill s">SIP</span><span class="pill s">RTP</span><span class="pill s">PBX</span><span class="pill s">IPBX</span><span class="pill">Softphone</span><span class="pill">Call Server</span><span class="pill">DTMF</span><span class="pill">Trunk SIP</span><span class="pill">Asterisk</span>
+                        </div>
+                      </div>
+                      <div class="sk">
+                        <div class="sk-title"><i class="ti ti-code" aria-hidden="true"></i>Programmation</div>
+                        <div class="pills">
+                          <span class="pill s">Python</span><span class="pill s">Java</span><span class="pill s">PHP</span><span class="pill s">SQL</span><span class="pill s">MySQL</span><span class="pill s">C</span><span class="pill s">C++</span><span class="pill">HTML5</span><span class="pill">CSS3</span>
+                        </div>
+                      </div>
+                      <div class="sk">
+                        <div class="sk-title"><i class="ti ti-cpu" aria-hidden="true"></i>Systèmes embarqués</div>
+                        <div class="pills">
+                          <span class="pill s">Arduino</span><span class="pill s">Raspberry</span>
+                        </div>
+                      </div>
+                      <div class="sk">
+                        <div class="sk-title"><i class="ti ti-antenna" aria-hidden="true"></i>Télécommunications</div>
+                        <div class="pills">
+                          <span class="pill s">Fibre optique</span><span class="pill s">Oscilloscope</span><span class="pill s">FFT</span><span class="pill s">IPTV / TV</span><span class="pill">Câblage réseau</span><span class="pill">Mesure de signal</span><span class="pill">Analyse spectrale</span><span class="pill">Modulation</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ms">
+                    <h2><i class="ti ti-briefcase" aria-hidden="true"></i>Expérience</h2>
+                    <div class="edu-item">
+                      <div class="edu-date">2021 – 2022</div>
+                      <div class="edu-body">
+                        <h4>Bénévolat — Construction</h4>
+                        <p>Bandraboua, Mayotte · Extension d'une maison en équipe. Sens des responsabilités, organisation collective et travail physique.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ms">
+                    <h2><i class="ti ti-link" aria-hidden="true"></i>Liens</h2>
+                    <div class="links">
+                      <a class="lb" href="https://linkedin.com/in/kassim-ali-aa6017199" target="_blank" rel="noopener noreferrer"><i class="ti ti-brand-linkedin" aria-hidden="true"></i>LinkedIn</a>
+                    </div>
+                  </div>
+                </main>
+            </div>
+        </div>
+    </main>
+
+    <footer id="site-footer"></footer>
+    <script src="../js/navbar.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>

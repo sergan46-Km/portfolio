@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<title>Serveur Mail — Les 3 Brasseurs</title>
+</head>
+<body>
+<header>
+  <h1>Infrastructure Réseau — Les 3 Brasseurs</h1>
+</header>
+<div class="sae-banner">SAE 204 — BUT Réseaux &amp; Télécommunications</div>
+<nav>
+  <a href="index.html">Accueil</a>
+  <a href="wifi.html">1. Wifi</a>
+  <a href="switch.html">2. Switch</a>
+  <a href="routeur.html">3. Routeur</a>
+  <a href="dhcp.html">4. DHCP</a>
+  <a href="ad_dns.html">5. AD &amp; DNS</a>
+  <a href="gpo.html">6. GPO &amp; RDP</a>
+  <a href="mail.html" class="active">7. Mail</a>
+  <a href="asterisk.html">8. Asterisk/PBX</a>
+  <a href="firewall.html">9. Pare-feu</a>
+  <a href="logs.html">10. Logs</a>
+  <a href="gestion_projet.html">11. Gestion de Projet</a>
+</nav>
+<div class="container">
+
+
+<h1>Serveur de Messagerie — Postfix & Dovecot</h1>
+
+<h2>Présentation</h2>
+<p>Le serveur de messagerie permet aux employés de la brasserie de s'envoyer des emails en interne via leur propre domaine <b>@brasserie.local</b>. Tout le trafic mail reste dans le réseau interne, ce qui garantit la confidentialité des communications.</p>
+
+<table border="1">
+  <tr><th>Service</th><th>Rôle</th><th>Port</th></tr>
+  <tr><td>Postfix</td><td>Envoi des emails (SMTP)</td><td>25</td></tr>
+  <tr><td>Dovecot</td><td>Réception et stockage (IMAP)</td><td>143</td></tr>
+  <tr><td>Dovecot</td><td>Réception et stockage (POP3)</td><td>110</td></tr>
+</table>
+
+<h2>Installation</h2>
+<p><b>Important :</b> Il faut installer les 4 paquets Dovecot d'un coup. Si on installe seulement dovecot-imapd, Dovecot refusera de démarrer car les services pop3-login et lmtp seront manquants.</p>
+<pre>
+sudo apt update && sudo apt upgrade -y
+sudo apt install postfix dovecot-core dovecot-imapd dovecot-pop3d dovecot-lmtpd -y
+</pre>
+
+<h2>Configuration de Postfix</h2>
+<pre>sudo dpkg-reconfigure postfix</pre>
+<table border="1">
+  <tr><th>Question</th><th>Réponse</th></tr>
+  <tr><td>Type de configuration</td><td>Site Internet</td></tr>
+  <tr><td>Nom du système de messagerie</td><td>brasserie.local</td></tr>
+  <tr><td>Destinataire root/postmaster</td><td>laisser vide</td></tr>
+  <tr><td>Mises à jour synchronisées</td><td>Non</td></tr>
+  <tr><td>Réseaux locaux</td><td>ajouter 192.168.136.0/28 à la fin</td></tr>
+  <tr><td>Taille des boîtes</td><td>0</td></tr>
+  <tr><td>Caractère d'extension</td><td>+</td></tr>
+  <tr><td>Protocoles Internet</td><td>all</td></tr>
+</table>
+
+<h2>Configuration de Dovecot</h2>
+<pre>sudo nano /etc/dovecot/conf.d/10-auth.conf</pre>
+<ul>
+  <li>Décommenter et modifier : <b>disable_plaintext_auth = no</b></li>
+  <li>Décommenter et modifier : <b>auth_mechanisms = plain login</b></li>
+</ul>
+
+<h2>Génération des certificats SSL</h2>
+<pre>
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout /etc/dovecot/private/dovecot.key \
+-out /etc/dovecot/private/dovecot.pem \
+-subj "/CN=brasserie.local"
+</pre>
+
+<h2>Démarrage des services</h2>
+<pre>
+sudo systemctl restart postfix
+sudo systemctl restart dovecot
+sudo systemctl status postfix
+sudo systemctl status dovecot
+</pre>
+
+<h2>Création des utilisateurs Linux</h2>
+<p>Les adresses mail sont automatiquement liées aux comptes Linux :</p>
+<pre>
+sudo useradd -m -s /bin/bash employe1 && sudo passwd employe1
+sudo useradd -m -s /bin/bash employe2 && sudo passwd employe2
+sudo useradd -m -s /bin/bash direction1 && sudo passwd direction1
+sudo useradd -m -s /bin/bash admin1 && sudo passwd admin1
+</pre>
+<p>Mot de passe pour chacun : <b>Brasserie@2026</b></p>
+<p>Adresses mail créées :</p>
+<ul>
+  <li>employe1@brasserie.local</li>
+  <li>employe2@brasserie.local</li>
+  <li>direction1@brasserie.local</li>
+  <li>admin1@brasserie.local</li>
+</ul>
+
+<h2>Test de l'envoi d'un email</h2>
+<pre>
+echo "Test mail brasserie" | mail -s "Test" admin1@brasserie.local
+sudo cat /var/mail/admin1
+</pre>
+
+<h2>Vérification de la configuration</h2>
+<pre>
+# Vérifier la configuration Postfix
+sudo cat /etc/postfix/main.cf
+
+# Vérifier la configuration Dovecot
+sudo dovecot -n
+
+# Vérifier que les ports sont ouverts
+sudo ss -tlnp | grep -E '25|143|110'
+</pre>
+
+<h2>Configuration Thunderbird sur le PC client</h2>
+<table border="1">
+  <tr><th>Paramètre</th><th>IMAP (réception)</th><th>SMTP (envoi)</th></tr>
+  <tr><td>Nom d'hôte</td><td>192.168.136.54</td><td>192.168.136.54</td></tr>
+  <tr><td>Port</td><td>143</td><td>25</td></tr>
+  <tr><td>Sécurité</td><td>Par défaut</td><td>Aucune</td></tr>
+  <tr><td>Authentification</td><td>Mot de passe normal</td><td>Mot de passe normal</td></tr>
+  <tr><td>Login</td><td>admin1</td><td>admin1</td></tr>
+</table>
+<p><b>Important :</b> Le login doit être <b>admin1</b> sans @brasserie.local !</p>
+
+<h2>Problèmes rencontrés</h2>
+<p><b>Problème 1 — Dovecot ne démarre pas : pop3-login manquant</b></p>
+<p>Cause : Seul dovecot-imapd avait été installé.</p>
+<p>Solution : sudo apt install dovecot-core dovecot-imapd dovecot-pop3d dovecot-lmtpd -y</p>
+
+<p><b>Problème 2 — Erreur mail_location: Unknown setting</b></p>
+<p>Cause : Dans Dovecot 2.4, mail_location n'existe plus, remplacé par mail_driver et mail_path.</p>
+<p>Solution : Ne pas ajouter mail_location, laisser la config par défaut de Dovecot 2.4.</p>
+
+<p><b>Problème 3 — Connexion Thunderbird échoue</b></p>
+<p>Cause 1 : Login avec admin1@brasserie.local au lieu de admin1.</p>
+<p>Cause 2 : Sécurité IMAP sur Aucune au lieu de Par défaut.</p>
+<p>Solution : Login = admin1 sans domaine | IMAP sécurité = Par défaut | SMTP sécurité = Aucune.</p>
+
+
+</div>
+<footer>Université Clermont Auvergne — Juin 2026</footer>
+</body>
+</html>
