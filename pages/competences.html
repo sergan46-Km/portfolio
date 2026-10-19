@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portfolio Ali Kassim, étudiant BUT Réseaux et Télécommunications, alternance 2026">
+    <meta name="description" content="Portfolio Ali Kassim, étudiant en BTS CIEL option Informatique et réseaux">
     <meta name="author" content="Ali Kassim">
     <title>Compétences – Ali Kassim</title>
     <link rel="stylesheet" href="../theme/main.css">
@@ -106,7 +106,7 @@
                             </div>
                             <div class="skill-explain" aria-live="polite">
                                 <div class="skill-explain-title">Clique sur une compétence</div>
-                                <div class="skill-explain-text">Tu pourras ensuite expliquer ce que tu as fait pour l’obtenir.</div>
+                                <div class="skill-explain-text">Sa définition s’affichera ici.</div>
                             </div>
                         </div>
                     </article>
@@ -134,7 +134,7 @@
                             </div>
                             <div class="skill-explain" aria-live="polite">
                                 <div class="skill-explain-title">Clique sur une compétence</div>
-                                <div class="skill-explain-text">Tu pourras ensuite expliquer ce que tu as fait pour l’obtenir.</div>
+                                <div class="skill-explain-text">Sa définition s’affichera ici.</div>
                             </div>
                         </div>
                     </article>
@@ -155,6 +155,7 @@
                                 <button type="button" class="tag tag-orange skill-pill" data-skill="SIP">SIP</button>
                                 <button type="button" class="tag tag-orange skill-pill" data-skill="RTP">RTP</button>
                                 <button type="button" class="tag tag-orange skill-pill" data-skill="PBX">PBX</button>
+                                <button type="button" class="tag tag-orange skill-pill" data-skill="IPBX">IPBX</button>
                                 <button type="button" class="tag skill-pill" data-skill="Softphone">Softphone</button>
                                 <button type="button" class="tag skill-pill" data-skill="Call Server">Call Server</button>
                                 <button type="button" class="tag skill-pill" data-skill="DTMF">DTMF</button>
@@ -163,7 +164,7 @@
                             </div>
                             <div class="skill-explain" aria-live="polite">
                                 <div class="skill-explain-title">Clique sur une compétence</div>
-                                <div class="skill-explain-text">Tu pourras ensuite expliquer ce que tu as fait pour l’obtenir.</div>
+                                <div class="skill-explain-text">Sa définition s’affichera ici.</div>
                             </div>
                         </div>
                     </article>
@@ -185,12 +186,36 @@
                                 <button type="button" class="tag tag-orange skill-pill" data-skill="PHP">PHP</button>
                                 <button type="button" class="tag tag-orange skill-pill" data-skill="SQL">SQL</button>
                                 <button type="button" class="tag tag-orange skill-pill" data-skill="MySQL">MySQL</button>
+                                <button type="button" class="tag tag-orange skill-pill" data-skill="C">C</button>
+                                <button type="button" class="tag tag-orange skill-pill" data-skill="C++">C++</button>
                                 <button type="button" class="tag skill-pill" data-skill="HTML5">HTML5</button>
                                 <button type="button" class="tag skill-pill" data-skill="CSS3">CSS3</button>
                             </div>
                             <div class="skill-explain" aria-live="polite">
                                 <div class="skill-explain-title">Clique sur une compétence</div>
-                                <div class="skill-explain-text">Tu pourras ensuite expliquer ce que tu as fait pour l’obtenir.</div>
+                                <div class="skill-explain-text">Sa définition s’affichera ici.</div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="tech-group">
+                    <h4>Systèmes embarqués</h4>
+                    <article class="skill-card glass-card">
+                        <div class="skill-card-header" onclick="toggleCompetence(this)" role="button" tabindex="0">
+                            <div class="skill-card-title">
+                                <span>Systèmes embarqués</span>
+                            </div>
+                            <span class="toggle-label">Voir plus</span>
+                        </div>
+                        <div class="skill-details">
+                            <div class="skill-tags skill-tags--clickable" data-skill-group="systemes-embarques">
+                                <button type="button" class="tag tag-orange skill-pill" data-skill="Arduino">Arduino</button>
+                                <button type="button" class="tag tag-orange skill-pill" data-skill="Raspberry Pi">Raspberry Pi</button>
+                            </div>
+                            <div class="skill-explain" aria-live="polite">
+                                <div class="skill-explain-title">Clique sur une compétence</div>
+                                <div class="skill-explain-text">Sa définition s’affichera ici.</div>
                             </div>
                         </div>
                     </article>
@@ -218,7 +243,7 @@
                             </div>
                             <div class="skill-explain" aria-live="polite">
                                 <div class="skill-explain-title">Clique sur une compétence</div>
-                                <div class="skill-explain-text">Tu pourras ensuite expliquer ce que tu as fait pour l’obtenir.</div>
+                                <div class="skill-explain-text">Sa définition s’affichera ici.</div>
                             </div>
                         </div>
                     </article>
@@ -230,5 +255,93 @@
     <footer id="site-footer"></footer>
     <script src="../js/navbar.js"></script>
     <script src="../js/script.js"></script>
+
+    <!-- Définitions des compétences : modifie les textes ici -->
+    <script>
+    (function () {
+        var DEFINITIONS = {
+            /* Réseaux */
+            "TCP/IP": "Ensemble de protocoles qui permettent aux appareils de communiquer sur Internet et sur les réseaux locaux : IP adresse et achemine les paquets, TCP garantit que les données arrivent complètes et dans l’ordre.",
+            "VLAN": "Réseau local virtuel. Il sépare logiquement les appareils d’un même switch en plusieurs réseaux distincts, pour mieux organiser et sécuriser le trafic.",
+            "Wi-Fi": "Technologie de réseau sans fil (norme IEEE 802.11) qui relie des appareils à un réseau local par ondes radio, grâce à des points d’accès.",
+            "SSH": "Protocole qui permet de se connecter à distance à une machine ou à un équipement réseau en ligne de commande, via une connexion chiffrée.",
+            "DHCP": "Service qui attribue automatiquement une adresse IP et les paramètres réseau (passerelle, DNS) aux appareils qui se connectent au réseau.",
+            "STP": "Spanning Tree Protocol. Il évite les boucles dans un réseau de switchs en bloquant certains liens redondants, tout en les gardant en secours.",
+            "ACL": "Access Control List. Liste de règles configurée sur un routeur ou un pare-feu qui autorise ou refuse le trafic selon les adresses, les ports ou les protocoles.",
+            "Routeur": "Équipement qui relie des réseaux différents entre eux et choisit le meilleur chemin pour acheminer les paquets.",
+            "Switch": "Commutateur qui relie les appareils d’un réseau local et envoie les données uniquement vers le bon destinataire, grâce aux adresses MAC.",
+            "Scapy": "Bibliothèque Python qui permet de fabriquer, envoyer, capturer et analyser des paquets réseau. Utile pour tester et comprendre le fonctionnement des protocoles.",
+            "DNS": "Domain Name System. Annuaire qui traduit les noms de domaine (comme brasserie.local) en adresses IP.",
+            "NAT": "Translation d’adresses. Elle remplace les adresses IP privées par une adresse publique pour permettre à un réseau interne d’accéder à Internet.",
+            "OSPF": "Protocole de routage dynamique. Les routeurs échangent leur vision du réseau et calculent automatiquement le plus court chemin.",
+            "Spanning Tree": "Mécanisme qui désigne un switch racine et ne laisse actifs que certains chemins, afin d’éviter les boucles et les tempêtes de broadcast. C’est le principe derrière le STP.",
+
+            /* Systèmes */
+            "Linux": "Système d’exploitation libre et open source, très utilisé pour les serveurs et que l’on administre surtout en ligne de commande.",
+            "Bash": "Interpréteur de commandes de Linux. Il permet de lancer des commandes et d’écrire des scripts pour automatiser des tâches.",
+            "Active Directory": "Service d’annuaire de Microsoft qui centralise les utilisateurs, les groupes, les ordinateurs et les droits d’accès d’un domaine Windows.",
+            "Virtualisation (VM)": "Technique qui fait fonctionner plusieurs systèmes isolés (machines virtuelles) sur une même machine physique.",
+            "Script Shell": "Fichier contenant une suite de commandes exécutées automatiquement, pour automatiser des tâches d’administration.",
+            "Serveur Linux": "Machine sous Linux qui fournit des services aux autres appareils du réseau : site web, messagerie, téléphonie, partage de fichiers…",
+            "Serveur Windows": "Machine sous Windows Server qui fournit des services comme Active Directory, DNS, DHCP ou le partage de fichiers.",
+            "VMware / VirtualBox": "Logiciels de virtualisation qui permettent de créer et gérer des machines virtuelles. Pratiques pour tester une infrastructure sans matériel dédié.",
+
+            /* Téléphonie IP */
+            "VoIP": "Voix sur IP. Transmission de la voix sous forme de paquets sur un réseau IP, au lieu de la ligne téléphonique classique.",
+            "SIP": "Session Initiation Protocol. Protocole de signalisation qui établit, modifie et termine les appels sur un réseau IP.",
+            "RTP": "Real-time Transport Protocol. Protocole qui transporte les flux audio et vidéo en temps réel pendant un appel.",
+            "PBX": "Autocommutateur : le central téléphonique d’une entreprise. Il gère les appels internes et externes, les files d’attente et la messagerie vocale.",
+            "IPBX": "Autocommutateur qui fonctionne sur un réseau IP et gère les appels avec des protocoles comme SIP. Asterisk en est un exemple.",
+            "Softphone": "Logiciel installé sur un ordinateur ou un smartphone qui joue le rôle de téléphone IP.",
+            "Call Server": "Serveur qui gère l’établissement et l’acheminement des appels entre les postes.",
+            "DTMF": "Tonalités émises quand on appuie sur les touches d’un téléphone. Elles servent à naviguer dans les serveurs vocaux.",
+            "Trunk SIP": "Liaison SIP qui relie le PBX d’une entreprise à un opérateur, pour passer des appels vers l’extérieur.",
+            "Asterisk": "Logiciel libre qui transforme un serveur Linux en IPBX : il gère les postes SIP, les appels, les contextes et la messagerie vocale.",
+
+            /* Programmation */
+            "Python": "Langage de programmation simple et polyvalent, très utilisé pour les scripts, l’automatisation et l’analyse réseau.",
+            "Java": "Langage orienté objet et portable, qui s’exécute sur une machine virtuelle (JVM). Utilisé pour développer des applications.",
+            "PHP": "Langage exécuté côté serveur, utilisé pour créer des sites web dynamiques, souvent associé à une base de données MySQL.",
+            "SQL": "Langage standard pour interroger et gérer des bases de données relationnelles.",
+            "MySQL": "Système de gestion de bases de données relationnelles open source, qui utilise le langage SQL.",
+            "C": "Langage compilé proche de la machine, utilisé pour les systèmes d’exploitation et la programmation de microcontrôleurs.",
+            "C++": "Extension du langage C qui ajoute la programmation orientée objet. Utilisé pour les logiciels performants et les systèmes embarqués.",
+            "HTML5": "Langage de balisage qui structure le contenu d’une page web (titres, paragraphes, liens, images, formulaires).",
+            "CSS3": "Langage de style qui définit l’apparence d’une page web : couleurs, polices, mise en page et animations.",
+
+            /* Systèmes embarqués */
+            "Arduino": "Plateforme électronique open source, basée sur une carte à microcontrôleur programmée en C/C++. Elle sert à lire des capteurs et à piloter des composants.",
+            "Raspberry Pi": "Mini-ordinateur très compact qui fonctionne sous Linux. Utilisé pour des projets de programmation, des serveurs légers et des objets connectés.",
+
+            /* Télécommunications */
+            "Fibre optique": "Câble en verre ou en plastique qui transmet les données sous forme d’impulsions lumineuses, avec un haut débit sur de longues distances.",
+            "Oscilloscope": "Instrument de mesure qui affiche l’évolution d’un signal électrique dans le temps, pour en observer l’amplitude et la fréquence.",
+            "FFT": "Transformée de Fourier rapide. Calcul qui décompose un signal en ses différentes fréquences pour en obtenir le spectre.",
+            "IPTV / TV": "Diffusion de la télévision sur un réseau IP (par exemple via une box), à la place de l’antenne ou du câble classique.",
+            "Câblage réseau": "Installation et raccordement des câbles (cuivre RJ45, fibre) et des baies pour relier les équipements d’un réseau.",
+            "Mesure de signal": "Contrôle des caractéristiques d’un signal (niveau, qualité, atténuation) avec des instruments, pour vérifier le bon état d’une liaison.",
+            "Analyse spectrale": "Étude des fréquences d’un signal et de leur puissance, pour repérer les interférences, le bruit ou le signal utile.",
+            "Modulation": "Procédé qui modifie une onde porteuse (en amplitude, en fréquence ou en phase) pour lui faire transporter une information."
+        };
+
+        function showDefinition(btn) {
+            var name = btn.getAttribute('data-skill');
+            var text = DEFINITIONS[name];
+            if (!text) return;
+            var box = btn.closest('.skill-details');
+            if (!box) return;
+            var title = box.querySelector('.skill-explain-title');
+            var body = box.querySelector('.skill-explain-text');
+            if (title) title.textContent = name;
+            if (body) body.textContent = text;
+        }
+
+        // setTimeout : s'exécute après le script existant, pour remplacer le texte « À compléter »
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest ? e.target.closest('.skill-pill') : null;
+            if (btn) setTimeout(function () { showDefinition(btn); }, 0);
+        });
+    })();
+    </script>
 </body>
 </html>
